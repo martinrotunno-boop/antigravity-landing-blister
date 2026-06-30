@@ -17,6 +17,7 @@ ENV NITRO_PRESET=node-server
 ENV PORT=3000
 ENV HOST=0.0.0.0
 ENV NODE_ENV=production
+ENV NITRO_TRUST_PROXY=true
 
 # Compilar la aplicación
 RUN npm run build
