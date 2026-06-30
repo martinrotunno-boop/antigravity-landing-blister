@@ -1,0 +1,5 @@
+[variables]
+NITRO_PRESET = "node-server"
+
+[start]
+cmd = "node .output/server/index.mjs"
