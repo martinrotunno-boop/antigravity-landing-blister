@@ -26,12 +26,12 @@ El **secret** de Turnstile no esta aca ni puede estarlo: vive cifrado en una
 credencial de n8n. Lo que protege el endpoint es que n8n valida el token contra
 Cloudflare del lado del servidor, no que la URL sea secreta.
 
-## Por que nginx escucha en el 3000
+## Por que nginx escucha en 80 y 3000
 
-No es el puerto habitual de nginx. Es a proposito: el servicio de Easypanel
-(`blister-landing-v104`) quedo configurado en el 3000 desde la version anterior,
-que era una app Node. Manteniendo ese puerto, cambiar de stack no obliga a tocar
-la configuracion del panel.
+El servicio de Easypanel (`blister-landing-v104`) viene de la version React, que
+a lo largo de su historia uso los dos puertos (ver `git log`). Como no se puede
+saber desde el repo en cual quedo configurado el proxy del panel, el contenedor
+atiende ambos. Cuesta nada y evita un deploy fallido por un numero.
 
 ## Historial
 
