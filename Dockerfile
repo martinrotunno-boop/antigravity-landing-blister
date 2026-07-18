@@ -1,29 +1,8 @@
-FROM node:20-alpine
+FROM nginx:alpine
 
-# Directorio de trabajo
-WORKDIR /app
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Copiar archivos de dependencias
-COPY package.json package-lock.json ./
+COPY index.html style.css script.js config.js /usr/share/nginx/html/
+COPY assets/ /usr/share/nginx/html/assets/
 
-# Instalar dependencias
-RUN npm install
-
-# Copiar el resto del código
-COPY . .
-
-# Variables de entorno necesarias para construir y ejecutar
-ENV NITRO_PRESET=node-server
-ENV PORT=3000
-ENV HOST=0.0.0.0
-ENV NODE_ENV=production
-ENV NITRO_TRUST_PROXY=true
-
-# Compilar la aplicación
-RUN npm run build
-
-# Exponer el puerto
 EXPOSE 3000
-
-# Iniciar la aplicación
-CMD ["node", ".output/server/index.mjs"]
