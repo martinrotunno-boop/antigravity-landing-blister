@@ -26,6 +26,15 @@ El **secret** de Turnstile no esta aca ni puede estarlo: vive cifrado en una
 credencial de n8n. Lo que protege el endpoint es que n8n valida el token contra
 Cloudflare del lado del servidor, no que la URL sea secreta.
 
+## Dominio canonico
+
+`www.blister.cloud` redirige con 301 a `blister.cloud`. Se resuelve en `nginx.conf`
+y no en el panel, para que quede versionado junto al resto.
+
+Importa por dos motivos: Google trata las dos direcciones como contenido duplicado,
+y el navegador las considera origenes distintos — con el sitio abierto en `www`, el
+POST del formulario a n8n moria por CORS.
+
 ## Por que nginx escucha en 80 y 3000
 
 El servicio de Easypanel (`blister-landing-v104`) viene de la version React, que
