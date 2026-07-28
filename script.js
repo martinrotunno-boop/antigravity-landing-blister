@@ -1,5 +1,22 @@
 document.addEventListener("DOMContentLoaded", () => {
 
+  // --- CTA DE CONTACTO ---
+  // El HTML trae WhatsApp hardcodeado y el texto que le corresponde ("Hablemos
+  // por WhatsApp"), así que funciona sin JS y no promete lo que no hace. Si algún
+  // día se define CALENDAR_URL en config.js, acá cambian destino Y texto juntos:
+  // un botón que dice "agendar" y abre un chat —o al revés— es la contradicción
+  // más visible que puede tener un estudio de automatización.
+  const calendarUrl = (window.ENV && window.ENV.CALENDAR_URL || "").trim();
+  if (calendarUrl) {
+    document.querySelectorAll('[data-cta="agendar"]').forEach(el => {
+      el.href = calendarUrl;
+      el.target = "_blank";
+      el.rel = "noopener";
+      el.textContent = el.dataset.ctaCorto || "Agendar una llamada";
+    });
+  }
+
+
   // --- THEME TOGGLE ---
   const themeToggleBtn = document.getElementById("theme-toggle");
   const htmlRoot = document.documentElement;
@@ -84,9 +101,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const metricsSection = document.getElementById("metrics-section");
   const m1 = document.getElementById("m1");
   const m2 = document.getElementById("m2");
-  const m3 = document.getElementById("m3");
   const m4 = document.getElementById("m4");
-  
+  // m3 ("1–4 sem") ya no se anima: es un rango, no un número, y tiene que
+  // coincidir con la respuesta de la FAQ sobre plazos de implementación.
+
   let metricsStarted = false;
 
   const metricsObserver = new IntersectionObserver((entries) => {
@@ -101,9 +119,8 @@ document.addEventListener("DOMContentLoaded", () => {
         
         if(m1) m1.textContent = Math.round(12 * prog);
         if(m2) m2.textContent = Math.round(180 * prog);
-        if(m3) m3.textContent = Math.max(2, Math.round(3 * prog));
         if(m4) m4.textContent = prog >= 1 ? '0' : Math.round((1 - prog) * 9);
-        
+
         if (p < 1) requestAnimationFrame(step);
       };
       

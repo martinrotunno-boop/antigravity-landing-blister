@@ -10,13 +10,32 @@
   <meta name="keywords" content="automatización, IA, asistentes de IA, agentes IA, automatización de procesos, n8n, CRM">
   <meta name="author" content="Blister">
   
+  <link rel="canonical" href="https://blister.cloud/">
+
   <!-- Open Graph / Social Media -->
+  <!-- OJO: og:image debe ser PNG/JPG y URL ABSOLUTA. Los crawlers de WhatsApp,
+       LinkedIn y Facebook no renderizan SVG y no resuelven rutas relativas:
+       con `./assets/*.svg` el link se compartía sin preview.
+       La imagen se genera con `_og-gen.html` (ver comentario en ese archivo). -->
   <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Blister">
+  <meta property="og:locale" content="es_UY">
   <meta property="og:url" content="https://blister.cloud/">
   <meta property="og:title" content="Blister - Orquestamos la operación de tu negocio">
   <meta property="og:description" content="Sistemas que eliminan el trabajo repetitivo, conectan herramientas y liberan tu tiempo.">
-  <meta property="og:image" content="./assets/simbolo-oscuro.svg">
-  
+  <meta property="og:image" content="https://blister.cloud/assets/og-image.png">
+  <meta property="og:image:secure_url" content="https://blister.cloud/assets/og-image.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Blister — Orquestamos la operación de tu negocio.">
+
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Blister - Orquestamos la operación de tu negocio">
+  <meta name="twitter:description" content="Sistemas que eliminan el trabajo repetitivo, conectan herramientas y liberan tu tiempo.">
+  <meta name="twitter:image" content="https://blister.cloud/assets/og-image.png">
+
   <link rel="icon" href="./assets/favicon-32.png">
   <link rel="stylesheet" href="style.css">
   
@@ -41,7 +60,13 @@
     </div>
     <div style="display:flex;align-items:center;gap:14px">
       <button id="theme-toggle" aria-label="Cambiar tema" class="theme-btn">☀</button>
-      <a href="https://wa.me/59899508432" target="_blank" class="btn-primary">Agendar una llamada</a>
+      <!-- El texto acompaña al destino: hoy es WhatsApp. Si algún día se define
+           CALENDAR_URL en config.js, script.js cambia el href Y el texto (usa
+           `data-cta-corto` acá, porque el nav no tiene lugar para la etiqueta larga).
+           El tramo envuelto en `b-hide-m` desaparece bajo 920px: en el nav de un
+           teléfono el botón entero es "WhatsApp". Con la etiqueta completa el botón
+           se parte en tres líneas y se sale de la barra. -->
+      <a href="https://wa.me/59899508432" target="_blank" rel="noopener" data-cta="agendar" data-cta-corto="Agendar" class="btn-primary" style="white-space:nowrap"><span class="b-hide-m">Hablemos por </span>WhatsApp</a>
     </div>
   </div>
 </nav>
@@ -54,7 +79,7 @@
       <h1 style="margin:0 0 22px;font-size:clamp(40px,5.2vw,64px);line-height:1.04;font-weight:900;letter-spacing:-0.02em;text-wrap:balance">Orquestamos la operación de tu negocio<span style="color:var(--cta)">.</span></h1>
       <p style="margin:0 0 36px;font-size:19px;line-height:1.55;color:var(--muted);max-width:520px;text-wrap:pretty">Automatizamos e implementamos sistemas que eliminan el trabajo repetitivo, conectan tus herramientas y liberan tu tiempo, con la solución que mejor encaje para tu negocio.</p>
       <div style="display:flex;gap:14px;flex-wrap:wrap">
-        <a href="https://wa.me/59899508432" target="_blank" class="btn-primary" style="padding:14px 28px;font-size:16px;">Agendar una llamada</a>
+        <a href="https://wa.me/59899508432" target="_blank" rel="noopener" data-cta="agendar" class="btn-primary" style="padding:14px 28px;font-size:16px;">Hablemos por WhatsApp</a>
         <a href="#proceso" class="btn-secondary">Ver cómo trabajamos</a>
       </div>
     </div>
@@ -79,11 +104,13 @@
 
 <!-- METRICS -->
 <section style="border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--surface)">
+  <!-- Los valores del HTML son los FINALES, no 0: el contador anima sobre ellos.
+       Si el JS tarda o falla, el visitante lee el número real y no "0 h recuperadas". -->
   <div id="metrics-section" class="b-cols scroll-anim fade-up" style="max-width:1140px;margin:0 auto;padding:52px 28px;grid-template-columns:repeat(4,1fr);gap:32px">
-    <div><p style="margin:0;font-size:42px;font-weight:900;letter-spacing:-0.02em">−<span id="m1">0</span> h</p><p style="margin:6px 0 0;font-size:14px;color:var(--muted)">recuperadas por semana, en un cliente típico</p></div>
-    <div><p style="margin:0;font-size:42px;font-weight:900;letter-spacing:-0.02em"><span id="m2">0</span>+</p><p style="margin:6px 0 0;font-size:14px;color:var(--muted)">tareas repetitivas automatizadas, en promedio</p></div>
-    <div><p style="margin:0;font-size:42px;font-weight:900;letter-spacing:-0.02em"><span id="m3">2</span> sem</p><p style="margin:6px 0 0;font-size:14px;color:var(--muted)">en promedio del diagnóstico a la implementación</p></div>
-    <div><p id="m4" style="margin:0;font-size:42px;font-weight:900;letter-spacing:-0.02em;color:var(--accent)">9</p><p style="margin:6px 0 0;font-size:14px;color:var(--muted)">consultas sin responder por falta de seguimiento</p></div>
+    <div><p style="margin:0;font-size:42px;font-weight:900;letter-spacing:-0.02em">−<span id="m1">12</span> h</p><p style="margin:6px 0 0;font-size:14px;color:var(--muted)">recuperadas por semana, en un cliente típico</p></div>
+    <div><p style="margin:0;font-size:42px;font-weight:900;letter-spacing:-0.02em"><span id="m2">180</span>+</p><p style="margin:6px 0 0;font-size:14px;color:var(--muted)">tareas repetitivas automatizadas, en promedio</p></div>
+    <div><p style="margin:0;font-size:42px;font-weight:900;letter-spacing:-0.02em">1–4 sem</p><p style="margin:6px 0 0;font-size:14px;color:var(--muted)">del diagnóstico a la implementación</p></div>
+    <div><p id="m4" style="margin:0;font-size:42px;font-weight:900;letter-spacing:-0.02em;color:var(--accent)">0</p><p style="margin:6px 0 0;font-size:14px;color:var(--muted)">consultas sin responder por falta de seguimiento</p></div>
   </div>
 </section>
 
