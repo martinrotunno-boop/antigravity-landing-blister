@@ -202,6 +202,38 @@ document.addEventListener("DOMContentLoaded", () => {
   // el sitekey viene de config.js y no está en el HTML.
   let turnstileWidgetId = null;
 
+  // El widget de Turnstile es un iframe de 300px de ancho fijo y la API no
+  // ofrece un tamaño fluido ("flexible" también tiene mínimo 300px). En un
+  // teléfono ese ancho es mayor que el hueco del formulario dentro de la tarjeta
+  // del CTA, así que lo escalamos para que entre. Se escala solo cuando falta
+  // lugar: en escritorio queda a tamaño real y sin transform.
+  const ANCHO_TURNSTILE = 300;
+  const turnstileWrap = cfTurnstileContainer && cfTurnstileContainer.parentElement;
+
+  let turnstileObserver = null; // Hay que guardar la referencia: un
+                                // ResizeObserver sin dueño se puede recolectar.
+
+  const ajustarTurnstile = () => {
+    if (!turnstileWrap) return;
+    const disponible = turnstileWrap.clientWidth;
+    const alto = cfTurnstileContainer.offsetHeight;
+    // Sin ancho (wrapper oculto) o sin alto (el widget todavía no pintó) no hay
+    // nada que medir. Salir sin tocar nada: fijar `height:0` acá dejaba el
+    // wrapper colapsado para siempre y el widget invisible.
+    if (!disponible || !alto) return;
+
+    const escala = Math.min(1, disponible / ANCHO_TURNSTILE);
+    if (escala === 1) {
+      cfTurnstileContainer.style.transform = "";
+      turnstileWrap.style.height = "";
+      return;
+    }
+    cfTurnstileContainer.style.transform = `scale(${escala})`;
+    // `transform` no reserva espacio en el layout: sin fijar la altura del
+    // wrapper, el botón de enviar se le montaría encima al widget.
+    turnstileWrap.style.height = `${Math.ceil(alto * escala)}px`;
+  };
+
   const renderTurnstile = () => {
     const sitekey = window.ENV && window.ENV.TURNSTILE_SITEKEY;
     if (!cfTurnstileContainer || !sitekey || !window.turnstile) return false;
@@ -211,6 +243,25 @@ document.addEventListener("DOMContentLoaded", () => {
       theme: "auto",
       action: "contacto"
     });
+    // El widget pinta asincrónicamente, así que en el momento del render todavía
+    // mide 0 de alto y no hay nada que escalar: esperamos a que tenga alto.
+    let intentosAlto = 0;
+    const esperaAlto = setInterval(() => {
+      if (cfTurnstileContainer.offsetHeight > 0) {
+        ajustarTurnstile();
+        clearInterval(esperaAlto);
+      } else if (++intentosAlto > 100) {
+        clearInterval(esperaAlto);
+      }
+    }, 100);
+
+    // Después el alto sigue cambiando según el estado del widget (verificando,
+    // resuelto, error, expirado) y hay que re-medir.
+    if (window.ResizeObserver && !turnstileObserver) {
+      turnstileObserver = new ResizeObserver(ajustarTurnstile);
+      turnstileObserver.observe(cfTurnstileContainer);
+    }
+    window.addEventListener("resize", ajustarTurnstile);
     return true;
   };
 

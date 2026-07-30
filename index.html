@@ -47,10 +47,17 @@
 <!-- NAV -->
 <nav class="nav-bar">
   <div class="nav-content">
-    <a href="#inicio" style="display:flex;align-items:center;gap:12px">
-      <img class="only-dark" src="./assets/simbolo-claro.svg" alt="Blister Logo" style="height:16px;">
-      <img class="only-light" src="./assets/simbolo-oscuro.svg" alt="Blister Logo" style="height:16px;">
-      <span style="font-weight:800;font-size:20px;letter-spacing:-0.01em">Blister<span style="color:var(--cta)">.</span></span>
+    <!-- Tamaños del logo y del nombre en `.nav-brand` (style.css), no inline:
+         abajo de 640px se achican para que el nav entre en pantallas de 320px. -->
+    <a href="#inicio" class="nav-brand">
+      <!-- El nombre del archivo dice PARA QUÉ FONDO es, no de qué color es el
+           símbolo: `simbolo-oscuro.svg` trae la pastilla clara (#F7F8F8) porque
+           va sobre fondo oscuro, y `simbolo-claro.svg` la trae oscura (#17191C).
+           Estaban al revés y el logo quedaba negro sobre negro en tema oscuro
+           (e invisible en tema claro). No invertir sin abrir los SVG. -->
+      <img class="only-dark" src="./assets/simbolo-oscuro.svg" alt="Blister Logo">
+      <img class="only-light" src="./assets/simbolo-claro.svg" alt="Blister Logo">
+      <span class="nav-brand-text">Blister<span style="color:var(--cta)">.</span></span>
     </a>
     <div class="b-hide-m" style="display:flex;align-items:center;gap:32px;font-size:15px;font-weight:500;color:var(--text)">
       <a href="#servicios">Servicios</a>
@@ -303,7 +310,9 @@
 
 <!-- CTA FINAL & CONTACTO -->
 <section id="contacto" class="section-container" style="padding-bottom:120px;">
-  <div class="scroll-anim fade-up" style="background:var(--text);color:var(--bg);border-radius:24px;padding:64px 48px;box-shadow:0 20px 40px rgba(0,0,0,0.1)">
+  <!-- El padding vive en `.cta-card` (style.css) y no acá: en teléfono se reduce
+       por media query, y un padding inline le gana a cualquier regla. -->
+  <div class="cta-card scroll-anim fade-up" style="background:var(--text);color:var(--bg);border-radius:24px;box-shadow:0 20px 40px rgba(0,0,0,0.1)">
     <div class="b-cols" style="grid-template-columns:1.1fr 1fr;gap:56px;align-items:start">
       <div>
         <h2 style="margin:0 0 16px;font-size:clamp(30px,3.8vw,46px);font-weight:900;letter-spacing:-0.02em;line-height:1.08;text-wrap:balance">Escalá tu operación, no cuánto trabajás<span style="color:var(--cta)">.</span></h2>
@@ -335,8 +344,14 @@
         <input type="text" id="fCompany" name="company" placeholder="Nombre de tu empresa" required class="form-input">
         <textarea id="fMessage" name="message" placeholder="¿Qué tarea te está robando más tiempo?" rows="3" style="resize:vertical" required class="form-input"></textarea>
         
-        <!-- Cloudflare Turnstile — se renderiza explícitamente desde script.js -->
-        <div id="cf-turnstile" style="margin-top: 8px;"></div>
+        <!-- Cloudflare Turnstile — se renderiza explícitamente desde script.js.
+             El widget es un iframe de ancho FIJO (300px). Sin el wrapper, ese
+             ancho pasaba a ser el mínimo intrínseco de la columna del grid y
+             arrastraba todo el formulario fuera de la tarjeta en teléfono.
+             script.js lo escala dentro del wrapper cuando no hay 300px. -->
+        <div class="turnstile-wrap" style="margin-top: 8px;">
+          <div id="cf-turnstile"></div>
+        </div>
         
         <button type="submit" id="form-submit" class="btn-primary" style="padding:15px 28px;font-size:16px;margin-top:8px;border:none;width:100%;text-align:center;">
           <span id="btn-text">Contáctanos</span>
@@ -352,8 +367,9 @@
 <footer style="border-top:1px solid var(--border)">
   <div style="max-width:1140px;margin:0 auto;padding:36px 28px;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap">
     <div style="display:flex;align-items:center;gap:10px">
-      <img class="only-dark" src="./assets/simbolo-claro.svg" alt="Blister Logo Pequeño" style="height:12px;">
-      <img class="only-light" src="./assets/simbolo-oscuro.svg" alt="Blister Logo Pequeño" style="height:12px;">
+      <!-- Ver comentario del logo en el nav: el nombre indica el fondo destino. -->
+      <img class="only-dark" src="./assets/simbolo-oscuro.svg" alt="Blister Logo Pequeño" style="height:12px;">
+      <img class="only-light" src="./assets/simbolo-claro.svg" alt="Blister Logo Pequeño" style="height:12px;">
       <span style="font-size:13.5px;color:var(--muted)">© 2026 Blister — Sistemas que trabajan para vos.</span>
     </div>
     <div style="display:flex;gap:24px;font-size:13.5px;font-weight:500;color:var(--muted)">

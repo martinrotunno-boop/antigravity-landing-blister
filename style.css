@@ -104,6 +104,14 @@ a:hover {
   display: grid;
 }
 
+/* Por defecto una celda de grid no baja de su ancho mínimo intrínseco: basta un
+   hijo de ancho fijo (el iframe de 300px de Turnstile) para estirar la columna y
+   sacar de la tarjeta a todo lo que tenga width:100%. `min-width:0` deja que la
+   columna respete el 1fr y que el contenido se adapte a ella. */
+.b-cols > * {
+  min-width: 0;
+}
+
 @media (max-width: 920px) {
   .b-cols {
     grid-template-columns: 1fr !important;
@@ -174,6 +182,22 @@ a:hover {
   gap: 24px;
 }
 
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav-brand img {
+  height: 16px;
+}
+
+.nav-brand-text {
+  font-weight: 800;
+  font-size: 20px;
+  letter-spacing: -0.01em;
+}
+
 .theme-btn {
   width: 38px;
   height: 38px;
@@ -239,6 +263,13 @@ a:hover {
   max-width: 1140px;
   margin: 0 auto;
   padding: 120px 28px 70px;
+}
+
+/* Tarjeta del CTA final (sección #contacto). El padding está acá y no inline
+   para poder achicarlo en teléfono: con 48px por lado, en una pantalla de 375px
+   al formulario le quedaban 241px útiles. */
+.cta-card {
+  padding: 64px 48px;
 }
 
 .label-text {
@@ -362,4 +393,70 @@ input[type=range] {
 #form-submit:disabled {
   opacity: 0.7;
   cursor: not-allowed;
+}
+
+/* Turnstile: el widget mide 300px fijos y no se puede hacer fluido desde la API.
+   El wrapper absorbe el ancho de la columna y script.js escala el widget cuando
+   no llega a 300px (y le fija la altura, que el transform no reserva espacio). */
+.turnstile-wrap {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+#cf-turnstile {
+  width: 300px;
+  transform-origin: 0 0;
+}
+
+/* --- TELÉFONO ---
+   Los paddings de escritorio se comen el ancho útil en pantallas angostas: la
+   tarjeta del CTA gastaba 96px de los 375px del viewport solo en aire lateral. */
+@media (max-width: 640px) {
+  .section-container {
+    padding: 80px 20px 56px;
+  }
+
+  /* En 320px el nav se salía de la barra: logo + nombre + tema + WhatsApp
+     sumaban ~358px. Se recorta el aire y las piezas, sin sacar ninguna. */
+  .nav-content {
+    padding: 0 20px;
+    gap: 12px;
+  }
+
+  .nav-brand {
+    gap: 9px;
+  }
+
+  .nav-brand img {
+    height: 14px;
+  }
+
+  .nav-brand-text {
+    font-size: 18px;
+  }
+
+  .nav-content .btn-primary {
+    padding: 9px 15px;
+    font-size: 14px;
+  }
+
+  .cta-card {
+    padding: 40px 24px;
+    border-radius: 20px;
+  }
+
+  .card {
+    padding: 24px;
+  }
+
+  .faq-btn {
+    font-size: 17px;
+    padding: 20px 0;
+  }
+
+  .btn-secondary,
+  .btn-primary {
+    text-align: center;
+  }
 }
