@@ -285,13 +285,15 @@ document.addEventListener("DOMContentLoaded", () => {
       const formData = new FormData(contactForm);
 
       // Payload explícito: no dejamos que campos extra del form (ni el input
-      // oculto de Turnstile) se filtren al body por accidente.
+      // oculto de Turnstile) se filtren al body por accidente. El honeypot es
+      // la excepción: se envía a propósito para que n8n lo valide server-side.
       const data = {
         name: (formData.get("name") || "").toString().trim(),
         email: (formData.get("email") || "").toString().trim(),
         phone: (formData.get("phone") || "").toString().trim(),
         company: (formData.get("company") || "").toString().trim(),
-        message: (formData.get("message") || "").toString().trim()
+        message: (formData.get("message") || "").toString().trim(),
+        website: (formData.get("website") || "").toString().trim()
       };
 
       // Validación simple adicional (HTML5 ya hace gran parte)

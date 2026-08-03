@@ -343,7 +343,18 @@
         <input type="text" id="fPhone" name="phone" placeholder="WhatsApp / Teléfono" required class="form-input">
         <input type="text" id="fCompany" name="company" placeholder="Nombre de tu empresa" required class="form-input">
         <textarea id="fMessage" name="message" placeholder="¿Qué tarea te está robando más tiempo?" rows="3" style="resize:vertical" required class="form-input"></textarea>
-        
+
+        <!-- Honeypot anti-spam: campo señuelo invisible para una persona pero
+             visible en el DOM para un bot que autocompleta cualquier input.
+             Si llega con valor, n8n devuelve éxito falso y descarta el envío
+             sin gastar la llamada a Turnstile. No usar `type="hidden"` ni
+             `display:none`: varios bots los detectan y los saltean a
+             propósito; por eso queda fuera de pantalla con position:absolute. -->
+        <div style="position:absolute;left:-9999px;top:-9999px;" aria-hidden="true">
+          <label for="fWebsite">Sitio web</label>
+          <input type="text" id="fWebsite" name="website" tabindex="-1" autocomplete="off">
+        </div>
+
         <!-- Cloudflare Turnstile — se renderiza explícitamente desde script.js.
              El widget es un iframe de ancho FIJO (300px). Sin el wrapper, ese
              ancho pasaba a ser el mínimo intrínseco de la columna del grid y
