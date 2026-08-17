@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="es" data-theme="oscuro">
 <head>
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MTSM3406NZ"></script>
+  <!-- Google tag (gtag.js) — carga diferida a consentimiento (Ley 18.331:
+       consentimiento previo, expreso e informado). No se inserta el script
+       real de GA4 ni se llama a gtag('config', ...) hasta que el visitante
+       acepta el banner de cookies. Ver script.js, seccion COOKIES. -->
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-MTSM3406NZ');
   </script>
 
   <meta charset="utf-8">
@@ -396,9 +396,24 @@
       <a href="#servicios">Servicios</a>
       <a href="#faq">Preguntas</a>
       <a href="#contacto">Contacto</a>
+      <a href="#" id="cookie-preferences-link">Cookies</a>
     </div>
   </div>
 </footer>
+
+<!-- BANNER DE COOKIES — opt-in real: GA4 no carga hasta que el visitante
+     elige. Arranca oculto (`hidden`); script.js lo muestra si todavia no
+     hay una eleccion guardada. Ver seccion COOKIES en script.js. -->
+<div id="cookie-banner" class="cookie-banner" role="dialog" aria-live="polite" aria-label="Preferencias de cookies" hidden>
+  <p class="cookie-banner-text">
+    Usamos cookies de análisis (Google Analytics) para entender cómo se usa
+    el sitio. Podés aceptarlas o rechazarlas.
+  </p>
+  <div class="cookie-banner-actions">
+    <button id="cookie-reject" type="button" class="cookie-btn cookie-btn-reject">Rechazar</button>
+    <button id="cookie-accept" type="button" class="cookie-btn cookie-btn-accept">Aceptar</button>
+  </div>
+</div>
 
 <!-- CHAT IA (L08) — widget flotante de consultoria.
      No comparte contenedor ni widgetId de Turnstile con el form de #contacto:

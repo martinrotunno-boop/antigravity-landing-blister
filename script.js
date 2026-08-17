@@ -1,5 +1,60 @@
 document.addEventListener("DOMContentLoaded", () => {
 
+  // --- COOKIES (opt-in de GA4, Ley 18.331) ---
+  // GA4 no se carga solo: index.html deja `gtag`/`dataLayer` definidos pero
+  // sin insertar el script real ni llamar a `gtag('config', ...)`. Acá se
+  // decide si corresponde cargarlo, según la eleccion guardada del visitante.
+  // "Rechazar" no borra cookies que ya se hayan puesto en una visita anterior
+  // donde se aceptó — solo evita que se carguen de nuevo a partir de ahora.
+  const COOKIE_CONSENT_KEY = "blister_cookie_consent";
+  const cookieBanner = document.getElementById("cookie-banner");
+  const cookieAccept = document.getElementById("cookie-accept");
+  const cookieReject = document.getElementById("cookie-reject");
+  const cookiePrefsLink = document.getElementById("cookie-preferences-link");
+
+  const cargarGA4 = () => {
+    if (document.getElementById("ga4-script")) return;
+    const s = document.createElement("script");
+    s.id = "ga4-script";
+    s.async = true;
+    s.src = "https://www.googletagmanager.com/gtag/js?id=G-MTSM3406NZ";
+    document.head.appendChild(s);
+    gtag("js", new Date());
+    gtag("config", "G-MTSM3406NZ");
+  };
+
+  const mostrarCookieBanner = () => { if (cookieBanner) cookieBanner.hidden = false; };
+  const ocultarCookieBanner = () => { if (cookieBanner) cookieBanner.hidden = true; };
+
+  let consentimientoGuardado = null;
+  try { consentimientoGuardado = localStorage.getItem(COOKIE_CONSENT_KEY); } catch (e) {}
+
+  if (consentimientoGuardado === "accepted") {
+    cargarGA4();
+  } else if (consentimientoGuardado !== "rejected") {
+    mostrarCookieBanner();
+  }
+
+  if (cookieAccept) {
+    cookieAccept.addEventListener("click", () => {
+      try { localStorage.setItem(COOKIE_CONSENT_KEY, "accepted"); } catch (e) {}
+      ocultarCookieBanner();
+      cargarGA4();
+    });
+  }
+  if (cookieReject) {
+    cookieReject.addEventListener("click", () => {
+      try { localStorage.setItem(COOKIE_CONSENT_KEY, "rejected"); } catch (e) {}
+      ocultarCookieBanner();
+    });
+  }
+  if (cookiePrefsLink) {
+    cookiePrefsLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      mostrarCookieBanner();
+    });
+  }
+
   // --- CTA DE CONTACTO ---
   // El HTML trae WhatsApp hardcodeado y el texto que le corresponde ("Hablemos
   // por WhatsApp"), así que funciona sin JS y no promete lo que no hace. Si algún
