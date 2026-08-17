@@ -409,6 +409,287 @@ input[type=range] {
   transform-origin: 0 0;
 }
 
+/* --- CHAT IA (L08) ---
+   Widget flotante, independiente del formulario de contacto. Usa su propio
+   Turnstile (mismo patrón de escalado que #cf-turnstile, ver script.js) y su
+   propia tarjeta: no comparte contenedor ni widgetId con el form de #contacto. */
+.chat-fab {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 55;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  border: none;
+  background: var(--cta);
+  color: #F4F3F0;
+  font-size: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--cta) 45%, transparent);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.chat-fab:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--cta) 55%, transparent);
+}
+
+/* El FAB se esconde mientras el panel está abierto: el botón de cerrar del
+   panel es el único disparador visible, evita dos controles redundantes. */
+.chat-fab[aria-expanded="true"] {
+  display: none;
+}
+
+.chat-panel {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 56;
+  width: 380px;
+  max-width: calc(100vw - 32px);
+  height: min(600px, calc(100vh - 48px));
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  animation: b-rise 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.chat-panel[hidden] {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-panel {
+    animation: none;
+  }
+}
+
+.chat-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--border);
+  flex: none;
+}
+
+.chat-header-title {
+  margin: 0;
+  font-size: 15.5px;
+  font-weight: 700;
+}
+
+.chat-header-sub {
+  margin: 3px 0 0;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.chat-close-btn {
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-size: 15px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 6px;
+  border-radius: 8px;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.chat-close-btn:hover {
+  color: var(--text);
+  background: var(--soft);
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.chat-bubble {
+  max-width: 86%;
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.chat-bubble-bot {
+  align-self: flex-start;
+  background: var(--soft);
+  color: var(--text);
+  border-bottom-left-radius: 4px;
+}
+
+.chat-bubble-user {
+  align-self: flex-end;
+  background: var(--cta);
+  color: #F4F3F0;
+  border-bottom-right-radius: 4px;
+}
+
+.chat-bubble-error {
+  align-self: center;
+  background: color-mix(in srgb, var(--state-error) 12%, transparent);
+  color: var(--state-error);
+  font-size: 13px;
+  text-align: center;
+}
+
+.chat-typing {
+  align-self: flex-start;
+  display: flex;
+  gap: 4px;
+  padding: 12px 14px;
+  background: var(--soft);
+  border-radius: 14px;
+  border-bottom-left-radius: 4px;
+}
+
+.chat-typing span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--muted);
+  animation: b-pulse 1s ease-in-out infinite;
+}
+
+.chat-typing span:nth-child(2) { animation-delay: 0.15s; }
+.chat-typing span:nth-child(3) { animation-delay: 0.3s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-typing span {
+    animation: none;
+    opacity: 0.6;
+  }
+}
+
+.chat-turnstile-wrap {
+  padding: 0 20px 12px;
+  flex: none;
+}
+
+.chat-turnstile-hint {
+  margin: 0 0 8px;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+/* Mismo mecanismo de #cf-turnstile: iframe de 300px fijo, escalado por JS
+   cuando el panel (380px con padding) no le da lugar completo. */
+#cf-turnstile-chat {
+  width: 300px;
+  transform-origin: 0 0;
+}
+
+.chat-status {
+  padding: 0 20px 8px;
+  font-size: 12.5px;
+  color: var(--state-error);
+  flex: none;
+}
+
+.chat-status:empty {
+  display: none;
+}
+
+.chat-form {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  padding: 14px 16px;
+  border-top: 1px solid var(--border);
+  flex: none;
+}
+
+.chat-input {
+  flex: 1;
+  resize: none;
+  max-height: 96px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 10px 14px;
+  font-family: inherit;
+  font-size: 14px;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.chat-input:focus {
+  outline: none;
+  border-color: var(--cta);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cta) 20%, transparent);
+}
+
+.chat-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.chat-send-btn {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: var(--cta);
+  color: #F4F3F0;
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: filter 0.2s ease, transform 0.2s ease;
+}
+
+.chat-send-btn:hover:not(:disabled) {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.chat-send-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .chat-fab {
+    right: 16px;
+    bottom: 16px;
+  }
+
+  .chat-panel {
+    /* `top` + `bottom` en vez de una altura en vh: dos insets del mismo
+       position:fixed siempre caben en el viewport real, mientras que vh en
+       mobile (Chrome/Safari) puede contar el area de la barra de direcciones
+       y desbordar unos pixeles por abajo. */
+    right: 10px;
+    left: 10px;
+    bottom: 10px;
+    top: 88px;
+    width: auto;
+    max-width: none;
+    height: auto;
+    max-height: 600px;
+  }
+}
+
 /* --- TELÉFONO ---
    Los paddings de escritorio se comen el ancho útil en pantallas angostas: la
    tarjeta del CTA gastaba 96px de los 375px del viewport solo en aire lateral. */

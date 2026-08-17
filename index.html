@@ -400,6 +400,39 @@
   </div>
 </footer>
 
+<!-- CHAT IA (L08) — widget flotante de consultoria.
+     No comparte contenedor ni widgetId de Turnstile con el form de #contacto:
+     el chat necesita el suyo propio (ver script.js, seccion CHAT). El panel
+     arranca oculto (`hidden`) y sin Turnstile renderizado: se renderiza recien
+     al abrir el panel para que el token no llegue vencido al primer mensaje. -->
+<button id="chat-fab" class="chat-fab" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="chat-panel" aria-label="Abrir el asistente de Blister">
+  <span aria-hidden="true">💬</span>
+</button>
+
+<div id="chat-panel" class="chat-panel" role="dialog" aria-modal="false" aria-labelledby="chat-panel-title" hidden>
+  <div class="chat-header">
+    <div>
+      <p id="chat-panel-title" class="chat-header-title">Asistente Blister</p>
+      <p class="chat-header-sub">Contanos que necesitas</p>
+    </div>
+    <button id="chat-close" class="chat-close-btn" type="button" aria-label="Cerrar el chat">✕</button>
+  </div>
+
+  <div id="chat-messages" class="chat-messages" role="log" aria-live="polite" aria-relevant="additions"></div>
+
+  <div id="chat-turnstile-wrap" class="chat-turnstile-wrap">
+    <p class="chat-turnstile-hint">Verificá que no sos un robot para empezar a escribir.</p>
+    <div id="cf-turnstile-chat"></div>
+  </div>
+
+  <p id="chat-status" class="chat-status" aria-live="polite"></p>
+
+  <form id="chat-form" class="chat-form">
+    <textarea id="chat-input" class="chat-input" placeholder="Escribi tu consulta..." maxlength="500" rows="1" aria-label="Tu mensaje" disabled></textarea>
+    <button type="submit" id="chat-send" class="chat-send-btn" aria-label="Enviar mensaje" disabled>➤</button>
+  </form>
+</div>
+
 <script src="config.js"></script>
 <script src="script.js"></script>
 </body>

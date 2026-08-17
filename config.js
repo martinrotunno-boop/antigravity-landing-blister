@@ -7,6 +7,11 @@ window.ENV = {
   // URL de PRODUCCION (sin "-test"). Solo responde con el workflow activo.
   N8N_WEBHOOK_URL: "https://nivoria-n8n.tn7jy5.easypanel.host/webhook/contacto-blister",
 
+  // Webhook de producción del workflow "Blister · Chat IA Landing (L08)".
+  // Mismo patrón que N8N_WEBHOOK_URL: URL de producción, solo responde si el
+  // workflow está publicado en n8n (Martín lo activa a mano, ver plan L08).
+  N8N_CHAT_WEBHOOK_URL: "https://nivoria-n8n.tn7jy5.easypanel.host/webhook/chat-blister",
+
   // Sitekey de Cloudflare Turnstile (público, empieza con 0x...)
   TURNSTILE_SITEKEY: "0x4AAAAAAD4VRxRE6mLPSsop",
 

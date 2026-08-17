@@ -196,84 +196,114 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnLoader = document.getElementById("btn-loader");
   const cfTurnstileContainer = document.getElementById("cf-turnstile");
 
-  // --- CLOUDFLARE TURNSTILE (render explícito) ---
+  // --- CLOUDFLARE TURNSTILE (render explícito, fábrica reutilizable) ---
   // api.js se carga async, así que esperamos a que window.turnstile exista en vez
   // de asumir que ya corrió. El render implícito por clase no se usa a propósito:
   // el sitekey viene de config.js y no está en el HTML.
-  let turnstileWidgetId = null;
-
+  //
   // El widget de Turnstile es un iframe de 300px de ancho fijo y la API no
   // ofrece un tamaño fluido ("flexible" también tiene mínimo 300px). En un
-  // teléfono ese ancho es mayor que el hueco del formulario dentro de la tarjeta
-  // del CTA, así que lo escalamos para que entre. Se escala solo cuando falta
-  // lugar: en escritorio queda a tamaño real y sin transform.
+  // teléfono ese ancho puede ser mayor que el hueco disponible, así que lo
+  // escalamos para que entre. Se escala solo cuando falta lugar: en escritorio
+  // queda a tamaño real y sin transform.
+  //
+  // Esta fábrica crea un controlador independiente por instancia: el form de
+  // #contacto y el chat de L08 tienen cada uno su propio contenedor, su propio
+  // widgetId y su propio `action` (Cloudflare distingue métricas por action).
+  // NO comparten nada — un widgetId reusado en dos formularios reventaria la
+  // logica de "token de un solo uso" del lado de n8n.
   const ANCHO_TURNSTILE = 300;
-  const turnstileWrap = cfTurnstileContainer && cfTurnstileContainer.parentElement;
 
-  let turnstileObserver = null; // Hay que guardar la referencia: un
-                                // ResizeObserver sin dueño se puede recolectar.
+  function crearControladorTurnstile(container, action, opciones) {
+    opciones = opciones || {};
+    let widgetId = null;
+    let observer = null; // Hay que guardar la referencia: un ResizeObserver
+                          // sin dueño se puede recolectar.
+    const wrap = container && container.parentElement;
 
-  const ajustarTurnstile = () => {
-    if (!turnstileWrap) return;
-    const disponible = turnstileWrap.clientWidth;
-    const alto = cfTurnstileContainer.offsetHeight;
-    // Sin ancho (wrapper oculto) o sin alto (el widget todavía no pintó) no hay
-    // nada que medir. Salir sin tocar nada: fijar `height:0` acá dejaba el
-    // wrapper colapsado para siempre y el widget invisible.
-    if (!disponible || !alto) return;
+    const ajustar = () => {
+      if (!wrap) return;
+      const disponible = wrap.clientWidth;
+      const alto = container.offsetHeight;
+      // Sin ancho (wrapper oculto) o sin alto (el widget todavía no pintó) no
+      // hay nada que medir. Salir sin tocar nada: fijar `height:0` acá dejaba
+      // el wrapper colapsado para siempre y el widget invisible.
+      if (!disponible || !alto) return;
 
-    const escala = Math.min(1, disponible / ANCHO_TURNSTILE);
-    if (escala === 1) {
-      cfTurnstileContainer.style.transform = "";
-      turnstileWrap.style.height = "";
-      return;
-    }
-    cfTurnstileContainer.style.transform = `scale(${escala})`;
-    // `transform` no reserva espacio en el layout: sin fijar la altura del
-    // wrapper, el botón de enviar se le montaría encima al widget.
-    turnstileWrap.style.height = `${Math.ceil(alto * escala)}px`;
-  };
-
-  const renderTurnstile = () => {
-    const sitekey = window.ENV && window.ENV.TURNSTILE_SITEKEY;
-    if (!cfTurnstileContainer || !sitekey || !window.turnstile) return false;
-
-    turnstileWidgetId = window.turnstile.render(cfTurnstileContainer, {
-      sitekey: sitekey,
-      theme: "auto",
-      action: "contacto"
-    });
-    // El widget pinta asincrónicamente, así que en el momento del render todavía
-    // mide 0 de alto y no hay nada que escalar: esperamos a que tenga alto.
-    let intentosAlto = 0;
-    const esperaAlto = setInterval(() => {
-      if (cfTurnstileContainer.offsetHeight > 0) {
-        ajustarTurnstile();
-        clearInterval(esperaAlto);
-      } else if (++intentosAlto > 100) {
-        clearInterval(esperaAlto);
+      const escala = Math.min(1, disponible / ANCHO_TURNSTILE);
+      if (escala === 1) {
+        container.style.transform = "";
+        wrap.style.height = "";
+        return;
       }
-    }, 100);
+      container.style.transform = `scale(${escala})`;
+      // `transform` no reserva espacio en el layout: sin fijar la altura del
+      // wrapper, lo que venga después se le montaría encima al widget.
+      wrap.style.height = `${Math.ceil(alto * escala)}px`;
+    };
 
-    // Después el alto sigue cambiando según el estado del widget (verificando,
-    // resuelto, error, expirado) y hay que re-medir.
-    if (window.ResizeObserver && !turnstileObserver) {
-      turnstileObserver = new ResizeObserver(ajustarTurnstile);
-      turnstileObserver.observe(cfTurnstileContainer);
-    }
-    window.addEventListener("resize", ajustarTurnstile);
-    return true;
-  };
+    const render = () => {
+      const sitekey = window.ENV && window.ENV.TURNSTILE_SITEKEY;
+      if (!container || !sitekey || !window.turnstile) return false;
+      if (widgetId !== null) return true; // ya renderizado, no duplicar
 
-  if (cfTurnstileContainer && window.ENV && window.ENV.TURNSTILE_SITEKEY) {
-    if (!renderTurnstile()) {
-      // Reintentar hasta que api.js termine de cargar (máx ~10s).
-      let intentos = 0;
-      const esperaTurnstile = setInterval(() => {
-        if (renderTurnstile() || ++intentos > 100) clearInterval(esperaTurnstile);
+      widgetId = window.turnstile.render(container, {
+        sitekey: sitekey,
+        theme: "auto",
+        action: action,
+        callback: opciones.callback,
+        "expired-callback": opciones.expiredCallback,
+        "error-callback": opciones.errorCallback
+      });
+
+      // El widget pinta asincrónicamente, así que en el momento del render
+      // todavía mide 0 de alto y no hay nada que escalar: esperamos a que
+      // tenga alto.
+      let intentosAlto = 0;
+      const esperaAlto = setInterval(() => {
+        if (container.offsetHeight > 0) {
+          ajustar();
+          clearInterval(esperaAlto);
+        } else if (++intentosAlto > 100) {
+          clearInterval(esperaAlto);
+        }
       }, 100);
-    }
+
+      // Después el alto sigue cambiando según el estado del widget
+      // (verificando, resuelto, error, expirado) y hay que re-medir.
+      if (window.ResizeObserver && !observer) {
+        observer = new ResizeObserver(ajustar);
+        observer.observe(container);
+      }
+      window.addEventListener("resize", ajustar);
+      return true;
+    };
+
+    // Reintenta hasta que api.js termine de cargar (máx ~10s). Se llama recién
+    // cuando hace falta (ej. al abrir el panel del chat), no siempre al cargar
+    // la página.
+    const asegurarRenderizado = () => {
+      if (render()) return;
+      let intentos = 0;
+      const espera = setInterval(() => {
+        if (render() || ++intentos > 100) clearInterval(espera);
+      }, 100);
+    };
+
+    return {
+      asegurarRenderizado,
+      getResponse: () => (widgetId !== null && window.turnstile ? window.turnstile.getResponse(widgetId) : ""),
+      reset: () => { if (widgetId !== null && window.turnstile) window.turnstile.reset(widgetId); }
+    };
   }
+
+  const turnstileContacto = crearControladorTurnstile(cfTurnstileContainer, "contacto");
+  if (cfTurnstileContainer && window.ENV && window.ENV.TURNSTILE_SITEKEY) {
+    turnstileContacto.asegurarRenderizado();
+  }
+  // Alias para no tocar el resto del handler de envío del formulario, que ya
+  // usaba `turnstileWidgetId !== null` como señal de "hay Turnstile activo".
+  const turnstileWidgetId = cfTurnstileContainer ? "activo" : null;
 
   if (contactForm) {
     contactForm.addEventListener("submit", async (e) => {
@@ -304,7 +334,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Token de Turnstile: obligatorio solo si el widget está configurado.
       if (turnstileWidgetId !== null) {
-        const token = window.turnstile.getResponse(turnstileWidgetId);
+        const token = turnstileContacto.getResponse();
         if (!token) {
           showError("Por favor completá la verificación anti-spam.");
           return;
@@ -347,7 +377,7 @@ document.addEventListener("DOMContentLoaded", () => {
         showError("Ocurrió un error al enviar tu mensaje. Verifica tu conexión o intenta más tarde.");
         // El token de Turnstile es de un solo uso: sin reset, el reintento
         // siempre falla la validación en n8n.
-        if (turnstileWidgetId !== null) window.turnstile.reset(turnstileWidgetId);
+        if (turnstileWidgetId !== null) turnstileContacto.reset();
       } finally {
         // Restaurar botón
         submitBtn.disabled = false;
@@ -360,6 +390,218 @@ document.addEventListener("DOMContentLoaded", () => {
   function showError(msg) {
     formErrorMsg.textContent = msg;
     formError.style.display = "block";
+  }
+
+
+  // --- CHAT IA (L08) ---
+  // Contrato con n8n (workflow "Blister · Chat IA Landing (L08)"):
+  //   primer mensaje  -> POST { message, turnstileToken }
+  //   siguientes      -> POST { message, sessionId }
+  //   respuesta OK    -> { reply, sessionId }
+  //   errores         -> { error, message } con status 400/401/403/429/502
+  //
+  // El historial de la charla vive en Redis del lado del servidor: acá NUNCA
+  // se junta ni se manda un historial, solo el mensaje nuevo y el sessionId.
+  // sessionId vive únicamente en memoria de esta pestaña (variable JS, no
+  // localStorage/cookie): recargar la página fuerza una verificación nueva,
+  // a propósito — evita tener que pensar en expiración de sesión guardada.
+  const chatFab = document.getElementById("chat-fab");
+  const chatPanel = document.getElementById("chat-panel");
+  const chatClose = document.getElementById("chat-close");
+  const chatMessages = document.getElementById("chat-messages");
+  const chatTurnstileWrap = document.getElementById("chat-turnstile-wrap");
+  const chatStatus = document.getElementById("chat-status");
+  const chatForm = document.getElementById("chat-form");
+  const chatInput = document.getElementById("chat-input");
+  const chatSend = document.getElementById("chat-send");
+  const cfTurnstileChatContainer = document.getElementById("cf-turnstile-chat");
+
+  if (chatFab && chatPanel && chatForm && chatInput && chatSend) {
+    let chatSessionId = null;
+    let chatSending = false;
+    let chatTurnstileVerified = false;
+
+    // Turnstile propio del chat: contenedor, widgetId y action ("chat", para
+    // distinguirlo de "contacto" en las métricas de Cloudflare) distintos del
+    // form de #contacto. Se renderiza recién al abrir el panel la primera vez
+    // -no en DOMContentLoaded- para que el token no llegue vencido al primer
+    // mensaje si el visitante tarda en abrir el chat.
+    const turnstileChat = crearControladorTurnstile(cfTurnstileChatContainer, "chat", {
+      callback: () => {
+        chatTurnstileVerified = true;
+        chatTurnstileWrap.style.display = "none";
+        chatInput.disabled = false;
+        chatSend.disabled = false;
+        setChatStatus("");
+        chatInput.focus();
+      },
+      expiredCallback: () => {
+        chatTurnstileVerified = false;
+        // Si ya hay sessionId, el servidor ya usó ese token para crear la
+        // sesión: que venza en el navegador después no afecta nada.
+        if (!chatSessionId) {
+          chatInput.disabled = true;
+          chatSend.disabled = true;
+          chatTurnstileWrap.style.display = "block";
+          setChatStatus("La verificación venció. Resolvela de nuevo para seguir.");
+        }
+      },
+      errorCallback: () => {
+        setChatStatus("No pudimos cargar la verificación anti-spam. Recargá la página.");
+      }
+    });
+
+    function setChatStatus(msg) {
+      chatStatus.textContent = msg || "";
+    }
+
+    function addBubble(text, kind) {
+      // textContent siempre, nunca innerHTML: ni el mensaje del visitante ni
+      // la respuesta del modelo se interpretan como HTML. El system prompt ya
+      // le pide texto plano al modelo (ver nota del workflow L08); esto es la
+      // segunda capa, del lado del cliente.
+      const bubble = document.createElement("p");
+      bubble.className = "chat-bubble chat-bubble-" + kind;
+      bubble.textContent = text;
+      chatMessages.appendChild(bubble);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      return bubble;
+    }
+
+    function showTyping() {
+      const typing = document.createElement("div");
+      typing.className = "chat-typing";
+      typing.id = "chat-typing-indicator";
+      const s1 = document.createElement("span");
+      const s2 = document.createElement("span");
+      const s3 = document.createElement("span");
+      typing.append(s1, s2, s3);
+      chatMessages.appendChild(typing);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function hideTyping() {
+      const typing = document.getElementById("chat-typing-indicator");
+      if (typing) typing.remove();
+    }
+
+    function openChat() {
+      chatPanel.hidden = false;
+      chatFab.setAttribute("aria-expanded", "true");
+      if (chatMessages.childElementCount === 0) {
+        addBubble("Hola. Contanos qué proceso te está consumiendo más tiempo y vemos cómo ayudarte. Si preferís hablar con una persona, escribinos por WhatsApp.", "bot");
+      }
+      if (!chatSessionId && !chatTurnstileVerified) {
+        turnstileChat.asegurarRenderizado();
+      }
+      chatInput.focus();
+    }
+
+    function closeChat() {
+      chatPanel.hidden = true;
+      chatFab.setAttribute("aria-expanded", "false");
+      chatFab.focus();
+    }
+
+    chatFab.addEventListener("click", openChat);
+    chatClose.addEventListener("click", closeChat);
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !chatPanel.hidden) closeChat();
+    });
+
+    // Autoexpandir el textarea (hasta el max-height fijado en CSS).
+    chatInput.addEventListener("input", () => {
+      chatInput.style.height = "auto";
+      chatInput.style.height = chatInput.scrollHeight + "px";
+    });
+
+    chatForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (chatSending) return;
+
+      const texto = chatInput.value.trim();
+      if (!texto) return;
+      if (texto.length > 500) {
+        setChatStatus("Tu mensaje es muy largo (máximo 500 caracteres).");
+        return;
+      }
+
+      const webhookUrl = window.ENV ? window.ENV.N8N_CHAT_WEBHOOK_URL : null;
+      if (!webhookUrl) {
+        setChatStatus("El chat no está disponible por ahora. Escribinos por WhatsApp.");
+        return;
+      }
+
+      const payload = { message: texto };
+      if (chatSessionId) {
+        payload.sessionId = chatSessionId;
+      } else {
+        const token = turnstileChat.getResponse();
+        if (!token) {
+          setChatStatus("Verificá que no sos un robot para empezar.");
+          return;
+        }
+        payload.turnstileToken = token;
+      }
+
+      addBubble(texto, "user");
+      chatInput.value = "";
+      chatInput.style.height = "auto";
+      setChatStatus("");
+      chatSending = true;
+      chatSend.disabled = true;
+      chatInput.disabled = true;
+      showTyping();
+
+      try {
+        const response = await fetch(webhookUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Accept": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        let data = null;
+        try { data = await response.json(); } catch (parseErr) { data = null; }
+
+        hideTyping();
+
+        if (response.ok && data && data.reply) {
+          chatSessionId = data.sessionId || chatSessionId;
+          addBubble(data.reply, "bot");
+        } else if (response.status === 401 || response.status === 403) {
+          // Sesión vencida o token de Turnstile inválido: en los dos casos el
+          // arreglo es el mismo, pedir una verificación nueva (el token de
+          // Turnstile es de un solo uso y expira solo, así que un 403 en el
+          // primer mensaje casi siempre es eso, no un ataque).
+          chatSessionId = null;
+          chatTurnstileVerified = false;
+          turnstileChat.reset();
+          chatTurnstileWrap.style.display = "block";
+          setChatStatus(response.status === 401
+            ? "Tu sesión venció. Verificá de nuevo para seguir la charla."
+            : "La verificación anti-spam no fue válida. Verificá de nuevo.");
+        } else if (response.status === 429) {
+          setChatStatus((data && data.message) || "Alcanzaste el límite de mensajes por ahora. Escribinos por WhatsApp si querés seguir.");
+        } else if (response.status === 400) {
+          setChatStatus((data && data.message) || "Revisá tu mensaje e intentá de nuevo.");
+        } else {
+          setChatStatus("No pudimos procesar tu consulta. Intentá de nuevo en unos minutos o escribinos por WhatsApp.");
+        }
+      } catch (error) {
+        console.error("Error en el chat:", error);
+        hideTyping();
+        setChatStatus("Error de conexión. Revisá tu internet e intentá de nuevo.");
+      } finally {
+        chatSending = false;
+        // Si estamos esperando una verificación de Turnstile nueva (sesión
+        // vencida / token inválido) el input sigue deshabilitado; si no, se
+        // reactiva para que el visitante pueda seguir escribiendo.
+        const esperandoVerificacion = !chatSessionId && !chatTurnstileVerified;
+        chatInput.disabled = esperandoVerificacion;
+        chatSend.disabled = esperandoVerificacion;
+        if (!esperandoVerificacion) chatInput.focus();
+      }
+    });
   }
 
 });
