@@ -684,6 +684,28 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // --- Foco que sigue al cursor en las tarjetas ---
+  // Le pasa a la tarjeta donde esta el mouse, en coordenadas locales; el
+  // CSS pinta ahi el gradiente (ver "Capa premium" en style.css).
+  // El listener va por tarjeta y no delegado en document: `pointermove` en
+  // un elemento solo dispara cuando el puntero esta encima, asi que no hay
+  // que preguntar por :hover ni medir tarjetas que nadie esta mirando.
+  // Un rAF por frame alcanza: mas de eso se descarta.
+  if (window.matchMedia("(hover: hover)").matches) {
+    let rafFoco = 0;
+    document.querySelectorAll(".premium-card, .hero-system-card").forEach((tarjeta) => {
+      tarjeta.addEventListener("pointermove", (e) => {
+        if (rafFoco) return;
+        rafFoco = requestAnimationFrame(() => {
+          rafFoco = 0;
+          const r = tarjeta.getBoundingClientRect();
+          tarjeta.style.setProperty("--mx", (e.clientX - r.left) + "px");
+          tarjeta.style.setProperty("--my", (e.clientY - r.top) + "px");
+        });
+      }, { passive: true });
+    });
+  }
+
   // --- GA4: clics al CTA de WhatsApp ---
   // Es la conversión real: el negocio se cierra en WhatsApp, no en el sitio.
   // Se engancha a `data-cta="agendar"` y no al href, porque si algún día se

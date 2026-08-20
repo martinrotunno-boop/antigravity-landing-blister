@@ -48,6 +48,16 @@
   --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.15);
   --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.2);
+
+  /* Monoespaciada del sistema. No se descarga nada: es la que ya tiene el
+     equipo. Se usa para las etiquetas tecnicas (ver "Capa premium"). */
+  --mono: ui-monospace, "SFMono-Regular", "SF Mono", Menlo, Consolas,
+          "Liberation Mono", monospace;
+
+  /* --cta en componentes para poder darle alfa variable. Es el mismo valor
+     en los dos temas (#FF6B00), por eso se declara una sola vez. */
+  --cta-rgb: 255 107 0;
+  --spot-alpha: 0.16;
 }
 
 :root[data-theme="claro"] {
@@ -65,6 +75,9 @@
   --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.04);
   --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.08);
+
+  /* Sobre fondo claro el mismo naranja pega mucho mas fuerte. */
+  --spot-alpha: 0.10;
 }
 
 html, body {
@@ -1043,26 +1056,187 @@ body > * { position: relative; z-index: 1; }
   pointer-events: none;
 }
 
-/* --- 4. Barrido de luz en las tarjetas al pasar el mouse --------------- */
-.premium-card {
+/* ======================================================================
+   CAPA PREMIUM (2026-08-20)
+   ----------------------------------------------------------------------
+   Cuatro cosas tomadas de lo que estan haciendo hoy los estudios de IA que
+   ganan premios, adaptadas al sistema visual que ya existia (tokens,
+   Satoshi, naranja). No agrega dependencias, no toca el copy y no cambia
+   una sola linea de markup: todo se engancha a ids y clases existentes.
+
+   De donde sale cada una:
+
+   - **Foco que sigue al cursor en las tarjetas** -> el idiom de Linear /
+     Vercel / Resend, hoy la firma visual del software caro. REEMPLAZA al
+     "barrido de luz" que habia aca: era un efecto de otra epoca y ademas
+     competia con este en el mismo hover. Dos brillos en una tarjeta no
+     son el doble de premium, son la mitad.
+   - **Riel numerado en el metodo** -> armory.framer.ai y rig.ai usan las
+     dos guias verticales/horizontales como andamio visible. Era la
+     seccion mas plana de la pagina y ahora es la mas disenada.
+   - **Etiquetas en monoespaciada** -> rig.ai. En un estudio de
+     automatizacion la etiqueta tecnica comunica mejor que la etiqueta
+     linda: dice "esto lo opera alguien que sabe".
+   - **Grano de pelicula sobre todo** -> el "grainy gradient" que se
+     volvio estandar en 2026. Un fondo plano y perfecto se lee barato; el
+     grano le da superficie sin agregar ruido de contenido.
+
+   Lo que NO se copio, a proposito: el scroll-jacking y los flood de color
+   de copula.agency. Blister vende criterio, no volumen.
+   ====================================================================== */
+
+/* --- 4. Foco que sigue al cursor -------------------------------------- */
+/* `--spot` se anima de 0 a 1 en el hover. Necesita @property para que sea
+   interpolable; donde no exista, el brillo entra de golpe en vez de
+   fundirse: se degrada solo, sin romperse. */
+@property --spot {
+  syntax: "<number>";
+  initial-value: 0;
+  inherits: false;
+}
+
+.premium-card,
+.hero-system-card {
+  --spot: 0;
   position: relative;
   overflow: hidden;
+  /* El gradiente es background-IMAGE, no un pseudo-elemento: se pinta
+     sobre el background-color de la tarjeta y debajo del texto, sin pelear
+     por el z-index con el contenido. */
+  background-image: radial-gradient(
+      340px circle at var(--mx, 50%) var(--my, 0%),
+      rgb(var(--cta-rgb) / calc(var(--spot-alpha) * var(--spot))) 0%,
+      transparent 62%);
+  transition: --spot 0.4s ease,
+              border-color 0.3s ease,
+              box-shadow 0.3s ease,
+              transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.premium-card::before {
+.premium-card:hover,
+.hero-system-card:hover { --spot: 1; }
+
+/* El borde tambien se entibia hacia el naranja: el foco solo, sin borde,
+   se lee como una mancha; con el borde se lee como que la tarjeta esta
+   viva. Va despues de la regla original para ganarle. */
+.premium-card:hover {
+  border-color: color-mix(in srgb, var(--cta) 32%, var(--border));
+}
+
+/* --- 5. Riel numerado del metodo -------------------------------------- */
+/* Los tres pasos tenian un border-top plano y nada mas. Ahora el borde es
+   un riel que se dibuja de izquierda a derecha cuando la seccion entra en
+   pantalla, con el numero de paso apoyado encima. El borde inline queda
+   como base tenue: si el JS no corre, igual se ve una linea. */
+#proceso .b-cols { counter-reset: paso; }
+
+#proceso .b-cols > div {
+  position: relative;
+  counter-increment: paso;
+  border-top-color: var(--border) !important;
+  padding-top: 30px !important;
+}
+
+#proceso .b-cols > div::after {
   content: "";
   position: absolute;
-  top: 0;
-  left: -120%;
-  width: 60%;
-  height: 100%;
-  background: linear-gradient(100deg, transparent,
-              color-mix(in srgb, var(--text) 8%, transparent), transparent);
-  transition: left 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-  pointer-events: none;
+  top: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--text);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.premium-card:hover::before { left: 130%; }
+#proceso .b-cols.is-visible > div::after { transform: scaleX(1); }
+#proceso .b-cols > div:nth-child(2)::after { transition-delay: 0.12s; }
+#proceso .b-cols > div:nth-child(3)::after {
+  transition-delay: 0.24s;
+  background: var(--cta);
+}
+
+/* El numero: chip con el fondo de la pagina para que corte el riel. Ese
+   corte es el punto — hace que el riel se lea como un instrumento y no
+   como un subrayado. */
+#proceso .b-cols > div::before {
+  content: "0" counter(paso);
+  position: absolute;
+  top: -12px;
+  left: 0;
+  z-index: 1;
+  padding-right: 12px;
+  background: var(--bg);
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+
+#proceso .b-cols > div:nth-child(3)::before { color: var(--cta); }
+
+/* --- 6. La banda de metricas como panel de instrumentos --------------- */
+#metrics-section > div {
+  position: relative;
+  padding-left: 22px;
+}
+
+#metrics-section > div::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 2px;
+  bottom: 2px;
+  width: 1px;
+  background: linear-gradient(180deg, transparent,
+              var(--border) 15%, var(--border) 85%, transparent);
+}
+
+/* El unico dato que es una promesa y no una medicion (el 0 de consultas
+   sin responder) se lleva el riel naranja. */
+#metrics-section > div:last-child::before {
+  background: linear-gradient(180deg, transparent,
+              var(--cta) 15%, var(--cta) 85%, transparent);
+}
+
+/* Cifras tabulares: el contador anima 0 -> 180 y con digitos de ancho
+   variable el numero "respira" y empuja la bajada. Esto no es decoracion,
+   es que el contador deje de temblar. */
+#metrics-section > div > p:first-child {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* --- 7. Etiquetas tecnicas en monoespaciada --------------------------- */
+.label-text {
+  font-family: var(--mono);
+  letter-spacing: 0.14em;
+}
+
+/* Los micro-rotulos de codigo del HTML (S·01…S·06 en servicios, "SISTEMA EN
+   EJECUCION" y "ACTIVO" en la tarjeta del hero) comparten todos el mismo
+   tracking inline. Se los engancha por ahi porque no tienen clase propia y
+   no vale tocar el markup por esto. Van en mono por la misma razon que las
+   etiquetas de seccion: rotulo de instrumento, no de folleto. */
+[style*="letter-spacing:0.08em"] { font-family: var(--mono); }
+
+/* --- 8. Grano de pelicula --------------------------------------------- */
+/* Va en body::after porque body::before ya es la grilla de puntos. Fijo,
+   sin eventos y por debajo del contenido (body > * esta en z-index 1). */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Sobre fondo claro el grano se ve mucho mas: la mitad y sobra. */
+:root[data-theme="claro"] body::after { opacity: 0.028; }
 
 /* --- 5. Resplandor del boton principal --------------------------------- */
 .btn-primary {
@@ -1103,5 +1277,21 @@ body > * { position: relative; z-index: 1; }
   .label-text::before {
     animation: none;
   }
-  .premium-card::before { transition: none; }
+  .premium-card,
+  .hero-system-card { transition: none; }
+
+  /* El riel del metodo no se dibuja: aparece entero. Sin esto, para quien
+     pide menos movimiento la linea quedaria en scaleX(0) para siempre. */
+  #proceso .b-cols > div::after {
+    transition: none;
+    transform: scaleX(1);
+  }
+}
+
+/* En pantallas chicas la grilla colapsa a una columna: el riel de cada
+   paso queda apilado y el numero pisaria menos, pero el padding extra
+   sobra. Se ajusta para que no se abra un hueco entre pasos. */
+@media (max-width: 920px) {
+  #proceso .b-cols > div { padding-top: 26px !important; }
+  #metrics-section > div { padding-left: 18px; }
 }
