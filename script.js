@@ -23,6 +23,17 @@ document.addEventListener("DOMContentLoaded", () => {
     gtag("config", "G-MTSM3406NZ");
   };
 
+  // --- GA4: eventos de conversión ---
+  // Helper único. El guard mira si gtag.js llegó a cargarse, NO si `gtag`
+  // existe: index.html define el stub (`dataLayer` + `function gtag`) siempre,
+  // acepte o no el visitante. Sin este chequeo los eventos se encolarían en
+  // dataLayer y, si más tarde acepta desde el link de preferencias, gtag.js
+  // vaciaría la cola y mandaría a GA4 lo ocurrido ANTES del consentimiento.
+  const trackEvent = (nombre, params) => {
+    if (!document.getElementById("ga4-script")) return;
+    gtag("event", nombre, params || {});
+  };
+
   const mostrarCookieBanner = () => { if (cookieBanner) cookieBanner.hidden = false; };
   const ocultarCookieBanner = () => { if (cookieBanner) cookieBanner.hidden = true; };
 
@@ -426,6 +437,10 @@ document.addEventListener("DOMContentLoaded", () => {
         // Éxito
         contactForm.style.display = "none";
         formSuccess.style.display = "block";
+
+        // GA4: lead confirmado. Va después de `response.ok`, así cuenta leads
+        // que entraron al CRM y no intentos que murieron en Turnstile o en red.
+        trackEvent("generate_lead", { lead_source: "contact_form" });
         
       } catch (error) {
         console.error("Error submitting form:", error);
@@ -475,6 +490,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let chatSessionId = null;
     let chatSending = false;
     let chatTurnstileVerified = false;
+    let chatStartTracked = false;
 
     // Turnstile propio del chat: contenedor, widgetId y action ("chat", para
     // distinguirlo de "contacto" en las métricas de Cloudflare) distintos del
@@ -600,6 +616,15 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       addBubble(texto, "user");
+
+      // GA4: solo el primer mensaje de la sesión. Acá ya pasaron todos los
+      // guards (texto, largo, webhook, Turnstile): es un mensaje que sale de
+      // verdad, no una intención. Los siguientes no agregan información.
+      if (!chatStartTracked) {
+        chatStartTracked = true;
+        trackEvent("chat_start", { chat_source: "site_widget" });
+      }
+
       chatInput.value = "";
       chatInput.style.height = "auto";
       setChatStatus("");
@@ -658,5 +683,19 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+
+  // --- GA4: clics al CTA de WhatsApp ---
+  // Es la conversión real: el negocio se cierra en WhatsApp, no en el sitio.
+  // Se engancha a `data-cta="agendar"` y no al href, porque si algún día se
+  // llena CALENDAR_URL (config.js, ver el swap de la línea ~66) el href deja
+  // de ser wa.me y el evento desaparecería sin aviso. Si eso pasa, renombrar
+  // el evento acá. `link_location` dice de qué bloque salió el clic: hoy el
+  // hero es <header id="inicio"> y el del nav no tiene contenedor con id.
+  document.querySelectorAll('a[data-cta="agendar"]').forEach((link) => {
+    link.addEventListener("click", () => {
+      const bloque = link.closest("section[id], header[id], footer[id]");
+      trackEvent("whatsapp_click", { link_location: bloque ? bloque.id : "nav" });
+    });
+  });
 
 });
