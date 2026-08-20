@@ -420,6 +420,10 @@ document.addEventListener("DOMContentLoaded", () => {
       btnText.style.display = "none";
       btnLoader.style.display = "inline-block";
 
+      // La decide el 429 y la lee el finally: si se enfriara el botón dentro
+      // del try, el finally lo volvería a habilitar un instante después.
+      let enfriarPorRateLimit = false;
+
       try {
         const response = await fetch(webhookUrl, {
           method: "POST",
@@ -430,8 +434,38 @@ document.addEventListener("DOMContentLoaded", () => {
           body: JSON.stringify(data)
         });
 
+        // n8n contesta { error, message } con el motivo real: rate limit,
+        // Turnstile, validación o fallo de guardado. Ese mensaje es más útil
+        // que cualquier texto genérico de acá — y "verificá tu conexión" era
+        // directamente falso cuando el servidor sí había contestado. Mismo
+        // patrón que el chat (L08).
+        //
+        // OJO con el nombre: `data` ya es el payload del lead unas líneas más
+        // arriba, en el scope de afuera. Volver a declararlo acá lo sombrea y
+        // manda el JSON.stringify(data) del fetch a la zona muerta.
+        let cuerpo = null;
+        try { cuerpo = await response.json(); } catch (parseErr) { cuerpo = null; }
+
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          showError((cuerpo && cuerpo.message) ||
+            "No pudimos enviar tu mensaje. Escribinos a contacto@blister.cloud.");
+
+          // El token de Turnstile es de un solo uso: sin reset, el reintento
+          // siempre falla la validación en n8n. Va en su propio try: si el
+          // widget está en mal estado y reset() tira, el catch de afuera
+          // pisaría el mensaje real con el de "sin conexión".
+          try {
+            if (turnstileWidgetId !== null) turnstileContacto.reset();
+          } catch (resetErr) {
+            console.error("No se pudo resetear Turnstile:", resetErr);
+          }
+
+          // El 429 es el único caso donde reintentar ya es inútil por diseño:
+          // hay un envío por IP cada 10 minutos. Dejar el botón activo invita a
+          // un clic que el servidor ya sabe que va a rechazar.
+          if (response.status === 429) enfriarPorRateLimit = true;
+
+          return;
         }
 
         // Éxito
@@ -443,16 +477,21 @@ document.addEventListener("DOMContentLoaded", () => {
         trackEvent("generate_lead", { lead_source: "contact_form" });
         
       } catch (error) {
+        // Acá cae solo lo que ni siquiera llegó a tener respuesta: sin red, DNS
+        // caído, CORS. Recién en ese caso "verificá tu conexión" es el consejo
+        // correcto; antes se mostraba también para errores del servidor.
         console.error("Error submitting form:", error);
-        showError("Ocurrió un error al enviar tu mensaje. Verifica tu conexión o intenta más tarde.");
-        // El token de Turnstile es de un solo uso: sin reset, el reintento
-        // siempre falla la validación en n8n.
+        showError("No pudimos conectar con el servidor. Verificá tu conexión e intentá de nuevo.");
         if (turnstileWidgetId !== null) turnstileContacto.reset();
       } finally {
         // Restaurar botón
-        submitBtn.disabled = false;
         btnText.style.display = "inline-block";
         btnLoader.style.display = "none";
+        if (enfriarPorRateLimit) {
+          enfriarBoton();
+        } else {
+          submitBtn.disabled = false;
+        }
       }
     });
   }
@@ -460,6 +499,25 @@ document.addEventListener("DOMContentLoaded", () => {
   function showError(msg) {
     formErrorMsg.textContent = msg;
     formError.style.display = "block";
+  }
+
+  // Bloquea el botón un minuto y lo dice, en vez de dejarlo activo para un clic
+  // que va a dar 429 igual. El minuto NO es el tiempo real que falta — el
+  // servidor no lo informa — es para frenar el reintento reflejo sin dejar el
+  // formulario trabado si el visitante se queda en la página.
+  // La etiqueta original se guarda UNA sola vez: con dos 429 seguidos, la
+  // segunda llamada guardaria "Esperá unos minutos" como si fuera el texto
+  // real y el botón se quedaba así para siempre.
+  let etiquetaBotonOriginal = null;
+
+  function enfriarBoton() {
+    if (etiquetaBotonOriginal === null) etiquetaBotonOriginal = btnText.textContent;
+    submitBtn.disabled = true;
+    btnText.textContent = "Esperá unos minutos…";
+    setTimeout(() => {
+      btnText.textContent = etiquetaBotonOriginal;
+      submitBtn.disabled = false;
+    }, 60000);
   }
 
 
