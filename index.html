@@ -88,7 +88,7 @@
 </nav>
 
 <!-- HERO -->
-<header id="inicio" class="section-container" style="padding-top:96px;padding-bottom:88px;position:relative;overflow:hidden;">
+<header id="inicio" class="section-container" style="padding-top:96px;padding-bottom:88px;position:relative;">
   <!-- Auras de color a la deriva. Decorativas y sin eventos: viven detras del
        contenido (ver .hero-aura en style.css). Se pueden borrar sin romper nada. -->
   <div class="hero-aura" aria-hidden="true"><span></span><span></span></div>
@@ -121,17 +121,11 @@
   </div>
 </header>
 
-<!-- METRICS -->
-<section style="border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--surface)">
-  <!-- Los valores del HTML son los FINALES, no 0: el contador anima sobre ellos.
-       Si el JS tarda o falla, el visitante lee el número real y no "0 h recuperadas". -->
-  <div id="metrics-section" class="b-cols scroll-anim fade-up" style="max-width:1140px;margin:0 auto;padding:52px 28px;grid-template-columns:repeat(4,1fr);gap:32px">
-    <div><p style="margin:0;font-size:42px;font-weight:900;letter-spacing:-0.02em">−<span id="m1">12</span> h</p><p style="margin:6px 0 0;font-size:14px;color:var(--muted)">recuperadas por semana, en un cliente típico</p></div>
-    <div><p style="margin:0;font-size:42px;font-weight:900;letter-spacing:-0.02em"><span id="m2">180</span>+</p><p style="margin:6px 0 0;font-size:14px;color:var(--muted)">tareas repetitivas automatizadas, en promedio</p></div>
-    <div><p style="margin:0;font-size:42px;font-weight:900;letter-spacing:-0.02em">1–4 sem</p><p style="margin:6px 0 0;font-size:14px;color:var(--muted)">del diagnóstico a la implementación</p></div>
-    <div><p id="m4" style="margin:0;font-size:42px;font-weight:900;letter-spacing:-0.02em;color:var(--accent)">0</p><p style="margin:6px 0 0;font-size:14px;color:var(--muted)">consultas sin responder por falta de seguimiento</p></div>
-  </div>
-</section>
+<!-- METRICS: eliminada el 2026-08-29 a pedido de Martin. Eran cuatro cifras
+     sin medicion que las respalde ("-12 h", "180+", "0"): promesas presentadas
+     como dato duro. El unico numero que queda es el del calculador de ahorro,
+     que declara su supuesto y se marca como estimacion. Se fue con su CSS
+     (#metrics-section) y su contador en script.js. -->
 
 <!-- STACK -->
 <section class="stack-section scroll-anim fade-up">

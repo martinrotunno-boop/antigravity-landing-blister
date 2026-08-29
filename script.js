@@ -163,40 +163,9 @@ document.addEventListener("DOMContentLoaded", () => {
   scrollAnimElements.forEach(el => scrollObserver.observe(el));
 
 
-  // --- METRICS ANIMATION ---
-  const metricsSection = document.getElementById("metrics-section");
-  const m1 = document.getElementById("m1");
-  const m2 = document.getElementById("m2");
-  const m4 = document.getElementById("m4");
-  // m3 ("1–4 sem") ya no se anima: es un rango, no un número, y tiene que
-  // coincidir con la respuesta de la FAQ sobre plazos de implementación.
-
-  let metricsStarted = false;
-
-  const metricsObserver = new IntersectionObserver((entries) => {
-    if (entries[0].isIntersecting && !metricsStarted) {
-      metricsStarted = true;
-      const t0 = performance.now();
-      const dur = 1400;
-      
-      const step = (t) => {
-        const p = Math.min(1, (t - t0) / dur);
-        const prog = 1 - Math.pow(1 - p, 3);
-        
-        if(m1) m1.textContent = Math.round(12 * prog);
-        if(m2) m2.textContent = Math.round(180 * prog);
-        if(m4) m4.textContent = prog >= 1 ? '0' : Math.round((1 - prog) * 9);
-
-        if (p < 1) requestAnimationFrame(step);
-      };
-      
-      requestAnimationFrame(step);
-    }
-  }, { threshold: 0.4 });
-
-  if (metricsSection) {
-    metricsObserver.observe(metricsSection);
-  }
+  // --- METRICS ANIMATION: eliminada el 2026-08-29 junto con la franja de
+  // metricas del hero (ver el comentario en index.html). Animaba los
+  // contadores #m1/#m2/#m4, que ya no existen.
 
 
   // --- SAVINGS CALCULATOR ---

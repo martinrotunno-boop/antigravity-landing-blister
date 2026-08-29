@@ -34,7 +34,14 @@
   --border: #2F3035;
   --text: #F4F3F0;
   --muted: #A3A7AD;
-  --accent: #FF7A26;
+  /* Acento = naranja quemado, discreto (tono de marca personal, manual de
+     identidad #BB4E00). Sobre la tarjeta de vidrio del hero, #BB4E00 a 11px
+     cae a ~3.4:1 y se lee apagado; por eso en oscuro se sube a #C86A2E
+     (4.87:1, AA) conservando el mismo tono. Mismo criterio que el split
+     #FF7A26/#BB4E00 del manual. El naranja brillante (--cta) queda solo
+     para botones y estados interactivos. */
+  --accent: #C86A2E;
+  --accent-rgb: 200 106 46;
   --cta: #FF6B00;
   --on-cta: #141416;
   --soft: #232428;
@@ -54,9 +61,8 @@
   --mono: ui-monospace, "SFMono-Regular", "SF Mono", Menlo, Consolas,
           "Liberation Mono", monospace;
 
-  /* --cta en componentes para poder darle alfa variable. Es el mismo valor
-     en los dos temas (#FF6B00), por eso se declara una sola vez. */
-  --cta-rgb: 255 107 0;
+  /* Alfa del foco que sigue al cursor. El color sale de --accent-rgb (que se
+     declara por tema, arriba): el resplandor es decoracion, no un CTA. */
   --spot-alpha: 0.16;
 }
 
@@ -67,7 +73,9 @@
   --border: #E2E3E5;
   --text: #141416;
   --muted: #5D6167;
-  --accent: #C25200;
+  /* Sobre fondo claro el tono del manual (#BB4E00) ya da 4.50:1 (AA). */
+  --accent: #BB4E00;
+  --accent-rgb: 187 78 0;
   --cta: #FF6B00;
   --on-cta: #141416;
   --soft: #ECEBE7;
@@ -103,7 +111,7 @@ a {
 }
 
 a:hover {
-  color: var(--cta);
+  color: var(--accent);
 }
 
 .only-dark { display: block; }
@@ -348,7 +356,7 @@ a:hover {
 }
 
 .faq-btn:hover {
-  color: var(--cta);
+  color: var(--accent);
 }
 
 .faq-content {
@@ -836,12 +844,40 @@ input[type=range] {
    primero, por eso el loop no salta. Si se cambia el -50% se rompe. */
 
 .stack-section {
-  /* Separada de la banda de metricas a proposito: aquella usa --surface y si esta
-     tambien lo usara, las dos se leerian como un solo bloque continuo. */
-  background: var(--bg);
+  /* Panel de vidrio (2026-08-29). Mismo lenguaje que .hero-system-card —
+     superficie translucida + blur + filo de 1px— y no el glassmorphism de
+     gradientes neon que la guia de marca prohibe: aca el vidrio es material,
+     no decoracion. Lo que se desenfoca detras es la grilla de puntos del body
+     (body::before, fija), asi que el efecto es mas fuerte cuando la tira esta
+     en la mitad de arriba de la pantalla; por eso la superficie translucida ya
+     tiene que leerse sola, sin depender del blur.
+     Antes era `background: var(--bg)` opaco, separado a proposito de la banda
+     de metricas para que no se leyeran como un bloque unico; esa banda se
+     elimino el 2026-08-29 y la restriccion ya no aplica. */
+  background: color-mix(in srgb, var(--surface) 58%, transparent);
+  backdrop-filter: blur(18px) saturate(118%);
+  -webkit-backdrop-filter: blur(18px) saturate(118%);
+  border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
   position: relative;
   overflow: hidden;
+}
+
+/* Filo luminoso arriba: el reflejo de canto que hace que una superficie
+   translucida se lea como vidrio y no como un panel medio transparente. Se
+   desvanece hacia los costados para no terminar en punta. */
+.stack-section::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent,
+              color-mix(in srgb, var(--text) 22%, transparent) 22%,
+              color-mix(in srgb, var(--text) 22%, transparent) 78%,
+              transparent);
+  pointer-events: none;
 }
 
 /* Resplandor tenue detras de la tira. Va en ::before y no como background del
@@ -851,7 +887,7 @@ input[type=range] {
   position: absolute;
   inset: 0;
   background: radial-gradient(60% 120% at 50% 50%,
-              color-mix(in srgb, var(--cta) 9%, transparent), transparent 70%);
+              color-mix(in srgb, var(--accent) 9%, transparent), transparent 70%);
   pointer-events: none;
 }
 
@@ -987,10 +1023,23 @@ body > * { position: relative; z-index: 1; }
 /* --- 2. Auras de color a la deriva detras del hero --------------------- */
 .hero-aura {
   position: absolute;
-  inset: 0;
+  /* Full-bleed a lo ancho del viewport: encerrada en la caja de 1140px, el
+     desenfoque cortaba con filo recto en el borde del contenido y el hero
+     parecia una imagen pegada. Ahora la luz se difumina fuera de pantalla.
+     La mascara radial desvanece los cuatro bordes del recuadro de 100vw para
+     que nada termine con canto duro, sin depender del ancho de pantalla.
+     `overflow:hidden` queda para que los blobs no chorreen hacia la franja
+     de metricas. */
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 100vw;
+  transform: translateX(-50%);
   overflow: hidden;
   pointer-events: none;
   z-index: 0;
+  -webkit-mask-image: radial-gradient(120% 100% at 50% 42%, #000 48%, transparent 100%);
+  mask-image: radial-gradient(120% 100% at 50% 42%, #000 48%, transparent 100%);
 }
 
 .hero-aura span {
@@ -1006,14 +1055,20 @@ body > * { position: relative; z-index: 1; }
 .hero-aura span:nth-child(1) {
   width: 460px; height: 460px;
   top: -160px; left: -120px;
-  background: color-mix(in srgb, var(--cta) 55%, transparent);
+  background: color-mix(in srgb, var(--accent) 55%, transparent);
   animation: b-drift-a 22s ease-in-out infinite alternate;
 }
 
 .hero-aura span:nth-child(2) {
   width: 380px; height: 380px;
   top: 40px; right: -140px;
-  background: color-mix(in srgb, #6C5CE7 50%, transparent);
+  /* Gris frio, NO un segundo color. Aca habia un violeta (#6C5CE7) que entro
+     con la capa futurista del 2026-08-20 y contradice la guia de marca:
+     `Landing-Page/identidad-visual-blister.md` prohibe explicitamente el
+     violeta por ser cliche del rubro IA. La paleta de Blister es carbon +
+     naranja; esta aura solo tiene que dar profundidad del lado frio. El mismo
+     valor sirve en los dos temas: sobre carbon aclara, sobre hueso ensombrece. */
+  background: color-mix(in srgb, #78808F 50%, transparent);
   animation: b-drift-b 27s ease-in-out infinite alternate;
 }
 
@@ -1046,7 +1101,7 @@ body > * { position: relative; z-index: 1; }
   border-radius: inherit;
   padding: 1px;
   background: linear-gradient(135deg,
-              color-mix(in srgb, var(--cta) 55%, transparent),
+              color-mix(in srgb, var(--accent) 55%, transparent),
               transparent 40%, transparent 60%,
               color-mix(in srgb, var(--accent) 30%, transparent));
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
@@ -1105,7 +1160,7 @@ body > * { position: relative; z-index: 1; }
      por el z-index con el contenido. */
   background-image: radial-gradient(
       340px circle at var(--mx, 50%) var(--my, 0%),
-      rgb(var(--cta-rgb) / calc(var(--spot-alpha) * var(--spot))) 0%,
+      rgb(var(--accent-rgb) / calc(var(--spot-alpha) * var(--spot))) 0%,
       transparent 62%);
   transition: --spot 0.4s ease,
               border-color 0.3s ease,
@@ -1120,7 +1175,7 @@ body > * { position: relative; z-index: 1; }
    se lee como una mancha; con el borde se lee como que la tarjeta esta
    viva. Va despues de la regla original para ganarle. */
 .premium-card:hover {
-  border-color: color-mix(in srgb, var(--cta) 32%, var(--border));
+  border-color: color-mix(in srgb, var(--accent) 32%, var(--border));
 }
 
 /* --- 5. Riel numerado del metodo -------------------------------------- */
@@ -1154,7 +1209,7 @@ body > * { position: relative; z-index: 1; }
 #proceso .b-cols > div:nth-child(2)::after { transition-delay: 0.12s; }
 #proceso .b-cols > div:nth-child(3)::after {
   transition-delay: 0.24s;
-  background: var(--cta);
+  background: var(--accent);
 }
 
 /* El numero: chip con el fondo de la pagina para que corte el riel. Ese
@@ -1175,39 +1230,11 @@ body > * { position: relative; z-index: 1; }
   color: var(--muted);
 }
 
-#proceso .b-cols > div:nth-child(3)::before { color: var(--cta); }
+#proceso .b-cols > div:nth-child(3)::before { color: var(--accent); }
 
-/* --- 6. La banda de metricas como panel de instrumentos --------------- */
-#metrics-section > div {
-  position: relative;
-  padding-left: 22px;
-}
-
-#metrics-section > div::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 2px;
-  bottom: 2px;
-  width: 1px;
-  background: linear-gradient(180deg, transparent,
-              var(--border) 15%, var(--border) 85%, transparent);
-}
-
-/* El unico dato que es una promesa y no una medicion (el 0 de consultas
-   sin responder) se lleva el riel naranja. */
-#metrics-section > div:last-child::before {
-  background: linear-gradient(180deg, transparent,
-              var(--cta) 15%, var(--cta) 85%, transparent);
-}
-
-/* Cifras tabulares: el contador anima 0 -> 180 y con digitos de ancho
-   variable el numero "respira" y empuja la bajada. Esto no es decoracion,
-   es que el contador deje de temblar. */
-#metrics-section > div > p:first-child {
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum" 1;
-}
+/* --- 6. (libre) La banda de metricas se elimino el 2026-08-29; su CSS
+   (#metrics-section: rieles verticales y cifras tabulares) se fue con ella.
+   Ver el comentario en index.html. --------------------------------------- */
 
 /* --- 7. Etiquetas tecnicas en monoespaciada --------------------------- */
 .label-text {
@@ -1258,7 +1285,7 @@ body::after {
   height: 1px;
   margin-right: 10px;
   vertical-align: middle;
-  background: var(--cta);
+  background: var(--accent);
   transform-origin: left center;
   animation: b-dash 3.2s ease-in-out infinite;
 }
@@ -1293,5 +1320,4 @@ body::after {
    sobra. Se ajusta para que no se abra un hueco entre pasos. */
 @media (max-width: 920px) {
   #proceso .b-cols > div { padding-top: 26px !important; }
-  #metrics-section > div { padding-left: 18px; }
 }
