@@ -34,14 +34,18 @@
   --border: #2F3035;
   --text: #F4F3F0;
   --muted: #A3A7AD;
-  /* Acento = naranja quemado, discreto (tono de marca personal, manual de
-     identidad #BB4E00). Sobre la tarjeta de vidrio del hero, #BB4E00 a 11px
-     cae a ~3.4:1 y se lee apagado; por eso en oscuro se sube a #C86A2E
-     (4.87:1, AA) conservando el mismo tono. Mismo criterio que el split
-     #FF7A26/#BB4E00 del manual. El naranja brillante (--cta) queda solo
-     para botones y estados interactivos. */
-  --accent: #C86A2E;
-  --accent-rgb: 200 106 46;
+  /* Acento = naranja quemado, discreto. En claro es el #BB4E00 del manual de
+     identidad; en oscuro NO se puede usar ese valor: cae a 3.30:1 sobre
+     --surface y a 11px se lee deshabilitado.
+     Lo discreto aca lo da la SATURACION (62%), no la luminosidad: bajar la
+     luminosidad rompe el contraste sobre fondo oscuro, bajar la saturacion no.
+     #CF7030 da 4.72:1 sobre --surface (#1E1F22), que es la superficie mas
+     clara del tema oscuro, asi que pasa AA sobre cualquier fondo oscuro del
+     sistema — no hace falta mirar sobre cual esta apoyado.
+     El naranja brillante (--cta) queda solo para botones y estados
+     interactivos. */
+  --accent: #CF7030;
+  --accent-rgb: 207 112 48;
   --cta: #FF6B00;
   --on-cta: #141416;
   --soft: #232428;
