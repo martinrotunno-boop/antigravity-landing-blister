@@ -1278,25 +1278,10 @@ body > * { position: relative; z-index: 1; }
   background: var(--accent);
 }
 
-/* El numero: chip con el fondo de la pagina para que corte el riel. Ese
-   corte es el punto — hace que el riel se lea como un instrumento y no
-   como un subrayado. */
-#proceso .b-cols > div::before {
-  content: "0" counter(paso);
-  position: absolute;
-  top: -12px;
-  left: 0;
-  z-index: 1;
-  padding-right: 12px;
-  background: var(--bg);
-  font-family: var(--mono);
-  font-size: 12px;
-  line-height: 1;
-  letter-spacing: 0.12em;
-  color: var(--muted);
-}
-
-#proceso .b-cols > div:nth-child(3)::before { color: var(--accent); }
+/* Los números de paso (01/02/03) se quitaron el 2026-09-01 (pedido de Martín,
+   junto con la numeración de secciones). El riel del ::after queda entero y
+   la intención la sostienen la animación scaleX y el acento del tercer paso.
+   counter-reset / counter-increment quedan inertes, sin efecto visible. */
 
 /* --- 6. (libre) La banda de metricas se elimino el 2026-08-29; su CSS
    (#metrics-section: rieles verticales y cifras tabulares) se fue con ella.

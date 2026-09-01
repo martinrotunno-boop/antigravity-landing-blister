@@ -181,7 +181,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!tasksContainer) return;
     const footerHtml = `
       <div style="display:flex;justify-content:space-between;padding:14px 20px;font-size:12px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted)">
-        <span>Hoy</span><span id="tasks-count">${27 + taskIdx} tareas resueltas sin intervención</span>
+        <span>Hoy</span><span id="tasks-count">${1 + taskIdx} de 5 tareas resueltas sin intervención</span>
       </div>
     `;
 
