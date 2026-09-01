@@ -877,8 +877,11 @@ input[type=range] {
     padding-bottom: 92px;
   }
 
-  /* La fila de enlaces del pie (7 con los legales) no cabe en una línea a
-     390px: envuelve en vez de desbordar horizontalmente. */
+  /* La fila de enlaces del pie degrada a dos líneas en vez de desbordar a lo
+     ancho si el texto no entra a 390px. Hoy en producción son 4 enlaces y
+     entran holgados (queda inerte); en la copia local son 7 (con los legales)
+     y sí envuelven. Defensivo: si se suma un enlace o crece el texto, no
+     rompe el ancho. */
   footer > div > div:last-child {
     flex-wrap: wrap;
     row-gap: 10px;

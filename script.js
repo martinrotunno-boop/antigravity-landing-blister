@@ -51,17 +51,23 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!f.length) return;
     const primero = f[0];
     const ultimo = f[f.length - 1];
-    if (e.shiftKey && document.activeElement === primero) {
+    const activo = document.activeElement;
+    if (!cookieBanner.contains(activo) || activo === cookieBanner) {
+      // Foco en el div del banner (p. ej. tras click en el fondo atenuado) o
+      // fuera del banner: lo traemos a un extremo según la dirección.
+      e.preventDefault();
+      (e.shiftKey ? ultimo : primero).focus();
+    } else if (e.shiftKey && activo === primero) {
       e.preventDefault();
       ultimo.focus();
-    } else if (!e.shiftKey && document.activeElement === ultimo) {
+    } else if (!e.shiftKey && activo === ultimo) {
       e.preventDefault();
       primero.focus();
     }
   };
 
   const mostrarCookieBanner = () => {
-    if (!cookieBanner) return;
+    if (!cookieBanner || !cookieBanner.hidden) return;
     focoPrevioCookie = document.activeElement;
     cookieBanner.hidden = false;
     cookieBanner.addEventListener("keydown", atraparFocoCookie);
