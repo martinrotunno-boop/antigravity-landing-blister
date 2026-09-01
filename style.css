@@ -1293,6 +1293,17 @@ body > * { position: relative; z-index: 1; }
   letter-spacing: 0.14em;
 }
 
+/* En movil, mono + versalitas + 0.14em a 13px se lee apretado. Se sube el
+   cuerpo y se afloja el tracking (el color no se toca: --muted ya cumple
+   AA/AAA). Va aca, despues de la capa premium, para ganarle en orden de
+   fuente sin subir especificidad ni usar !important. */
+@media (max-width: 640px) {
+  .label-text {
+    font-size: 14px;
+    letter-spacing: 0.1em;
+  }
+}
+
 /* Los micro-rotulos de codigo del HTML (S·01…S·06 en servicios, "SISTEMA EN
    EJECUCION" y "ACTIVO" en la tarjeta del hero) comparten todos el mismo
    tracking inline. Se los engancha por ahi porque no tienen clase propia y
