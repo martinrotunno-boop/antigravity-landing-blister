@@ -34,8 +34,64 @@ document.addEventListener("DOMContentLoaded", () => {
     gtag("event", nombre, params || {});
   };
 
-  const mostrarCookieBanner = () => { if (cookieBanner) cookieBanner.hidden = false; };
-  const ocultarCookieBanner = () => { if (cookieBanner) cookieBanner.hidden = true; };
+  // El banner es un diálogo modal (aria-modal, y el ::before atenúa y bloquea
+  // el resto de la página). Como es modal, hay que manejar el foco: llevarlo
+  // adentro al abrir, atraparlo con Tab, y devolverlo al abrir/cerrar.
+  let focoPrevioCookie = null;
+
+  const focusablesCookie = () =>
+    cookieBanner
+      ? [...cookieBanner.querySelectorAll('a[href], button:not([disabled])')]
+          .filter((el) => el.offsetParent !== null)
+      : [];
+
+  const atraparFocoCookie = (e) => {
+    if (e.key !== "Tab") return;
+    const f = focusablesCookie();
+    if (!f.length) return;
+    const primero = f[0];
+    const ultimo = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === primero) {
+      e.preventDefault();
+      ultimo.focus();
+    } else if (!e.shiftKey && document.activeElement === ultimo) {
+      e.preventDefault();
+      primero.focus();
+    }
+  };
+
+  const mostrarCookieBanner = () => {
+    if (!cookieBanner) return;
+    focoPrevioCookie = document.activeElement;
+    cookieBanner.hidden = false;
+    cookieBanner.addEventListener("keydown", atraparFocoCookie);
+    // Foco a "Rechazar": es la opción que preserva la privacidad.
+    (cookieReject || cookieAccept || cookieBanner).focus();
+  };
+
+  const ocultarCookieBanner = () => {
+    if (!cookieBanner) return;
+    const activo = document.activeElement;
+    cookieBanner.hidden = true;
+    cookieBanner.removeEventListener("keydown", atraparFocoCookie);
+    // Si había un elemento real con foco antes de abrir (p. ej. el link
+    // "Cookies" del pie), se lo devolvemos. En la apertura automática al
+    // cargar la página no hay ninguno, así que solo sacamos el foco del
+    // botón —que ahora vive en un subárbol `hidden`— y el próximo Tab
+    // arranca desde el principio del documento.
+    const volverA =
+      focoPrevioCookie &&
+      focoPrevioCookie !== document.body &&
+      document.contains(focoPrevioCookie)
+        ? focoPrevioCookie
+        : null;
+    if (volverA) {
+      volverA.focus();
+    } else if (activo && cookieBanner.contains(activo) && activo.blur) {
+      activo.blur();
+    }
+    focoPrevioCookie = null;
+  };
 
   let consentimientoGuardado = null;
   try { consentimientoGuardado = localStorage.getItem(COOKIE_CONSENT_KEY); } catch (e) {}

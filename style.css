@@ -861,8 +861,27 @@ input[type=range] {
   }
 
   .cta-card {
-    padding: 40px 24px;
+    /* Padding inferior extra: el .chat-fab (position:fixed, ~74px desde el
+       borde inferior) tapaba el borde derecho del boton de enviar cuando se
+       scrollea el form al fondo del viewport. Con 96px abajo, el boton nunca
+       llega a la zona del FAB. */
+    padding: 40px 24px 96px;
     border-radius: 20px;
+  }
+
+  /* Mismo motivo: el FAB tapaba la fila de enlaces del pie. Se sube el
+     contenido del footer para que quede por encima de la zona del FAB.
+     Va sobre <footer> y no sobre su div interno porque ese div trae el
+     padding en un shorthand inline que un longhand no puede pisar. */
+  footer {
+    padding-bottom: 92px;
+  }
+
+  /* La fila de enlaces del pie (7 con los legales) no cabe en una línea a
+     390px: envuelve en vez de desbordar horizontalmente. */
+  footer > div > div:last-child {
+    flex-wrap: wrap;
+    row-gap: 10px;
   }
 
   .card {
