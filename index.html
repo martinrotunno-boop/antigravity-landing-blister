@@ -315,7 +315,7 @@
           <p style="margin:4px 0 0;font-size:13.5px;color:var(--muted)">valor estimado por mes</p>
         </div>
       </div>
-      <p style="margin:24px 0 0;font-size:12.5px;color:var(--muted)">Estimación orientativa (70% automatizado). El diagnóstico real es gratis.</p>
+      <p style="margin:24px 0 0;font-size:12.5px;color:var(--muted)">Estimación orientativa (70% automatizado). La primera llamada es gratis; el diagnóstico a fondo es pago y se descuenta de la implementación.</p>
     </div>
   </div>
 </section>
@@ -345,7 +345,7 @@
       <div style="border-top:1px solid var(--border)">
         <button class="faq-btn">¿Con qué canales y herramientas trabajan?<span class="faq-icon" style="color:var(--muted);font-weight:400;font-size:22px">+</span></button>
         <div class="faq-content">
-          <p class="faq-text">Elegimos las herramientas que mejor resuelven el problema, no las que más nos convienen. Si mañana existe algo mejor, migramos.</p>
+          <p class="faq-text">Elegimos las herramientas que mejor resuelven el problema, no las que más nos convienen. Si con el tiempo aparece una que resuelve mejor tu caso, lo planteamos y evaluamos el cambio con vos.</p>
         </div>
       </div>
 
@@ -359,7 +359,7 @@
       <div style="border-top:1px solid var(--border)">
         <button class="faq-btn">¿Cuánto demora la implementación?<span class="faq-icon" style="color:var(--muted);font-weight:400;font-size:22px">+</span></button>
         <div class="faq-content">
-          <p class="faq-text">Depende del proceso, pero la mayoría de los sistemas están en producción de 1 a 4 semanas. Empezamos por lo que más tiempo te ahorra, no por lo más vistoso.</p>
+          <p class="faq-text">Depende del proceso y de su complejidad. Un primer sistema acotado suele estar en producción en pocas semanas; el plazo concreto lo definimos en el diagnóstico. Empezamos por lo que más tiempo te ahorra, no por lo más vistoso.</p>
         </div>
       </div>
 
@@ -373,7 +373,7 @@
       <div style="border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
         <button class="faq-btn">¿Qué pasa con el mantenimiento?<span class="faq-icon" style="color:var(--muted);font-weight:400;font-size:22px">+</span></button>
         <div class="faq-content">
-          <p class="faq-text">Lo sostenemos nosotros. Los sistemas se monitorean, se ajustan y se actualizan; si algo se rompe, lo arreglamos antes de que te enteres. No te dejamos solo con la herramienta.</p>
+          <p class="faq-text">Lo sostenemos nosotros. Los sistemas se monitorean, se ajustan y se actualizan; si algo falla, saltan alertas y lo atendemos según lo acordado en el mantenimiento. No te dejamos solo con la herramienta.</p>
         </div>
       </div>
 
@@ -389,7 +389,7 @@
     <div class="b-cols" style="grid-template-columns:1.1fr 1fr;gap:56px;align-items:start">
       <div>
         <h2 style="margin:0 0 16px;font-size:clamp(30px,3.8vw,46px);font-weight:900;letter-spacing:-0.02em;line-height:1.08;text-wrap:balance">Escalá tu operación, no cuánto trabajás<span style="color:var(--cta)">.</span></h2>
-        <p style="margin:0 0 32px;font-size:17px;line-height:1.55;opacity:.75">Solicitá un diagnóstico gratis. Vemos juntos dónde se te va el tiempo y te decimos, sin compromiso, qué conviene automatizar primero.</p>
+        <p style="margin:0 0 32px;font-size:17px;line-height:1.55;opacity:.75">Agendá una llamada exploratoria gratis. Vemos dónde se te va el tiempo y, si tiene sentido avanzar, hacemos un diagnóstico a fondo — pago, y se descuenta de la implementación.</p>
         <div style="display:flex;flex-direction:column;gap:10px;font-size:15px;font-weight:500">
           <span style="opacity:.75">→ contacto@blister.cloud</span>
           <span style="opacity:.75">→ WhatsApp: +598 99 508 432</span>
@@ -411,11 +411,11 @@
 
       <!-- Formulario -->
       <form id="contact-form" style="display:flex;flex-direction:column;gap:14px">
-        <input type="text" id="fName" name="name" placeholder="Nombre completo" required class="form-input">
-        <input type="email" id="fEmail" name="email" placeholder="Correo electrónico" required class="form-input">
-        <input type="text" id="fPhone" name="phone" placeholder="WhatsApp / Teléfono" required class="form-input">
-        <input type="text" id="fCompany" name="company" placeholder="Nombre de tu empresa" required class="form-input">
-        <textarea id="fMessage" name="message" placeholder="¿Qué tarea te está robando más tiempo?" rows="3" style="resize:vertical" required class="form-input"></textarea>
+        <input type="text" id="fName" name="name" placeholder="Nombre completo" aria-label="Nombre completo" autocomplete="name" required class="form-input">
+        <input type="email" id="fEmail" name="email" placeholder="Correo electrónico" aria-label="Correo electrónico" autocomplete="email" required class="form-input">
+        <input type="text" id="fPhone" name="phone" placeholder="WhatsApp / Teléfono" aria-label="WhatsApp o teléfono" autocomplete="tel" required class="form-input">
+        <input type="text" id="fCompany" name="company" placeholder="Nombre de tu empresa" aria-label="Nombre de tu empresa" autocomplete="organization" required class="form-input">
+        <textarea id="fMessage" name="message" placeholder="¿Qué tarea te está robando más tiempo?" aria-label="¿Qué tarea te está robando más tiempo?" autocomplete="off" rows="3" style="resize:vertical" required class="form-input"></textarea>
 
         <!-- Honeypot anti-spam: campo señuelo invisible para una persona pero
              visible en el DOM para un bot que autocompleta cualquier input.
@@ -497,7 +497,7 @@
   <div class="chat-header">
     <div>
       <p id="chat-panel-title" class="chat-header-title">Asistente Blister</p>
-      <p class="chat-header-sub">Contanos que necesitas</p>
+      <p class="chat-header-sub">Contanos qué necesitás</p>
     </div>
     <button id="chat-close" class="chat-close-btn" type="button" aria-label="Cerrar el chat">✕</button>
   </div>
@@ -512,7 +512,7 @@
   <p id="chat-status" class="chat-status" aria-live="polite"></p>
 
   <form id="chat-form" class="chat-form">
-    <textarea id="chat-input" class="chat-input" placeholder="Escribi tu consulta..." maxlength="500" rows="1" aria-label="Tu mensaje" disabled></textarea>
+    <textarea id="chat-input" class="chat-input" placeholder="Escribí tu consulta..." maxlength="500" rows="1" aria-label="Tu mensaje" disabled></textarea>
     <button type="submit" id="chat-send" class="chat-send-btn" aria-label="Enviar mensaje" disabled>➤</button>
   </form>
 </div>

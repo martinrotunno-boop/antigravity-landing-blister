@@ -695,22 +695,54 @@ input[type=range] {
 }
 
 /* --- BANNER DE COOKIES ---
-   Abajo a la izquierda en escritorio para no chocar con el .chat-fab (que
-   vive abajo a la derecha). En mobile no hay lugar para los dos lado a lado,
-   así que el banner sube por encima de la fila donde vive el FAB (ver media
-   query) en vez de intentar medir su alto con JS. */
+   Va CENTRADO en la pantalla, sobre un fondo atenuado, desde el 2026-08-21:
+   abajo a la izquierda quedaba fuera del foco y buena parte de la sesión
+   transcurría antes de que el visitante eligiera, así que esos datos se
+   perdían para GA4. Centrado, se resuelve de entrada.
+
+   Lo que NO cambió, y no puede cambiar: Aceptar y Rechazar siguen con el
+   mismo peso visual, y GA4 no se carga hasta que el visitante elige. Es
+   exigencia de la Ley 18.331 y de la decisión del 2026-08-17 (e). Esto es un
+   diálogo de consentimiento, no un muro de cookies: si alguna vez se le saca
+   el botón Rechazar o se le baja el peso, deja de ser legal.
+
+   Ya no hace falta esquivar al .chat-fab: al estar centrado y con backdrop,
+   no comparten espacio. */
 .cookie-banner {
   position: fixed;
-  left: 24px;
-  bottom: 24px;
-  z-index: 58;
-  width: 360px;
-  max-width: calc(100vw - 48px);
-  padding: 18px 20px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 100;
+  width: 420px;
+  max-width: calc(100vw - 40px);
+  padding: 24px 26px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 16px;
   box-shadow: var(--shadow-lg);
+}
+
+/* Fondo atenuado. Va como pseudo-elemento para no tocar el HTML: .cookie-banner
+   ya crea contexto de apilado propio (tiene z-index), así que el z-index -1 lo
+   manda detrás de la tarjeta sin escaparse del contexto. */
+.cookie-banner::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .cookie-banner {
+    animation: cookie-banner-in 0.22s ease-out;
+  }
+}
+
+@keyframes cookie-banner-in {
+  from { opacity: 0; transform: translate(-50%, calc(-50% + 8px)); }
+  to   { opacity: 1; transform: translate(-50%, -50%); }
 }
 
 .cookie-banner[hidden] {
@@ -761,11 +793,18 @@ input[type=range] {
 
 @media (max-width: 640px) {
   .cookie-banner {
-    left: 10px;
-    right: 10px;
-    bottom: 92px;
     width: auto;
+    left: 16px;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
     max-width: none;
+    padding: 20px;
+  }
+
+  @keyframes cookie-banner-in {
+    from { opacity: 0; transform: translateY(calc(-50% + 8px)); }
+    to   { opacity: 1; transform: translateY(-50%); }
   }
 
   .chat-fab {
