@@ -230,26 +230,48 @@ document.addEventListener("DOMContentLoaded", () => {
   const displayTarifa = document.getElementById("display-tarifa");
   const calcHorasMes = document.getElementById("calc-horas-mes");
   const calcAhorro = document.getElementById("calc-ahorro");
-  
+  const calcEscenarios = document.getElementById("calc-escenarios");
+
+  // Parte del trabajo repetitivo que se automatiza. Arranca en 50% (botón
+  // is-active en el HTML) y lo cambian los botones 30/50/70.
+  let calcFactor = 0.5;
+
   const updateCalculator = () => {
     if(!calcHoras || !calcTarifa) return;
     const horas = parseInt(calcHoras.value, 10);
     const tarifa = parseInt(calcTarifa.value, 10);
-    
+
     displayHoras.textContent = `${horas} h`;
     displayTarifa.textContent = `$ ${tarifa}`;
-    
-    const horasMes = Math.round(horas * 4.3 * 0.7);
+
+    const horasMes = Math.round(horas * 4.3 * calcFactor);
     const ahorroMes = horasMes * tarifa;
-    
+
     calcHorasMes.textContent = horasMes;
     calcAhorro.textContent = ahorroMes.toLocaleString('es-UY');
   };
-  
+
   if (calcHoras && calcTarifa) {
     calcHoras.addEventListener("input", updateCalculator);
     calcTarifa.addEventListener("input", updateCalculator);
     updateCalculator();
+  }
+
+  if (calcEscenarios) {
+    const escenarioBtns = calcEscenarios.querySelectorAll(".calc-escenario");
+    escenarioBtns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const factor = parseFloat(btn.dataset.factor);
+        if (Number.isNaN(factor)) return;
+        calcFactor = factor;
+        escenarioBtns.forEach(b => {
+          const activo = b === btn;
+          b.classList.toggle("is-active", activo);
+          b.setAttribute("aria-pressed", activo ? "true" : "false");
+        });
+        updateCalculator();
+      });
+    });
   }
 
 
@@ -416,9 +438,16 @@ document.addEventListener("DOMContentLoaded", () => {
         website: (formData.get("website") || "").toString().trim()
       };
 
-      // Validación simple adicional (HTML5 ya hace gran parte)
-      if (!data.name || !data.email || !data.phone || !data.message) {
-        showError("Por favor completa todos los campos requeridos.");
+      // Validación adicional (HTML5 ya cubre los required y el formato de email).
+      if (!data.name || !data.message) {
+        showError("Por favor completá los campos requeridos.");
+        return;
+      }
+
+      // Contacto: alcanza con email O teléfono. Se rechaza solo si faltan los
+      // dos. Mismo criterio que L01 en n8n (nodo "Campos Válidos?").
+      if (!data.email && !data.phone) {
+        showError("Dejanos al menos un contacto: correo o WhatsApp.");
         return;
       }
 

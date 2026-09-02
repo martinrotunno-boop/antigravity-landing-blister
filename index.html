@@ -262,13 +262,52 @@
   </div>
 </section>
 
+<!-- FLUJO: ANTES -> SISTEMA -> DESPUES (B11) -->
+<section style="border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--surface)">
+  <div class="scroll-anim fade-up" style="max-width:1140px;margin:0 auto;padding:100px 28px">
+    <p class="label-text" style="margin:0 0 14px;">Cómo cambia el proceso</p>
+    <h2 style="margin:0 0 48px;font-size:clamp(28px,3.4vw,42px);font-weight:800;letter-spacing:-0.02em;text-wrap:balance;max-width:720px">De trabajo que se empuja a mano a un proceso que corre solo<span style="color:var(--cta)">.</span></h2>
+    <div class="flow-line">
+      <div class="flow-step">
+        <span class="flow-tag">Antes</span>
+        <h3 class="flow-title">El trabajo pasa de mano en mano</h3>
+        <ul class="flow-list">
+          <li>Datos que se copian de un sistema a otro</li>
+          <li>Respuestas que hay que ir a buscar</li>
+          <li>Tareas que alguien tiene que acordarse de hacer</li>
+        </ul>
+      </div>
+      <div class="flow-arrow" aria-hidden="true">→</div>
+      <div class="flow-step">
+        <span class="flow-tag flow-tag-accent">Con el sistema</span>
+        <h3 class="flow-title">Blister conecta lo que ya usás</h3>
+        <ul class="flow-list">
+          <li>WhatsApp, correo, planillas y CRM hablando entre sí</li>
+          <li>Reglas que hacen el traspaso sin intervención</li>
+          <li>Un registro de qué pasó y cuándo</li>
+        </ul>
+      </div>
+      <div class="flow-arrow" aria-hidden="true">→</div>
+      <div class="flow-step">
+        <span class="flow-tag">Después</span>
+        <h3 class="flow-title">El proceso corre sin empujarlo</h3>
+        <ul class="flow-list">
+          <li>El equipo deja el trabajo mecánico</li>
+          <li>Menos errores de tipeo y menos olvidos</li>
+          <li>Capacidad libre para lo que sí necesita una persona</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- CALCULADORA -->
 <section id="calculadora" class="section-container">
   <div class="b-cols scroll-anim fade-up" style="grid-template-columns:1fr 1fr;gap:64px;align-items:start">
     <div>
       <p class="label-text" style="margin:0 0 14px;">Estimador de oportunidad</p>
       <h2 style="margin:0 0 18px;font-size:clamp(30px,3.6vw,44px);font-weight:800;letter-spacing:-0.02em;text-wrap:balance">¿Cuánto tiempo estás perdiendo?</h2>
-      <p style="margin:0;font-size:17px;line-height:1.6;color:var(--muted);max-width:480px">Una estimación simple: contá las horas que tu equipo dedica cada semana a tareas repetitivas y mirá qué pasa si el 70% se automatiza.</p>
+      <p style="margin:0;font-size:17px;line-height:1.6;color:var(--muted);max-width:480px">Una estimación simple: contá las horas que tu equipo dedica cada semana a tareas repetitivas y mirá qué pasa según cuánto de eso se automatice.</p>
     </div>
     <div class="card premium-card" style="padding:32px;">
       <label class="label-text" style="display:block;margin-bottom:8px;">Horas semanales repetitivas</label>
@@ -277,21 +316,27 @@
         <span id="display-horas" style="font-size:22px;font-weight:800;min-width:64px;text-align:right">12 h</span>
       </div>
       <label class="label-text" style="display:block;margin-bottom:8px;">Costo por hora (USD)</label>
-      <div style="display:flex;align-items:center;gap:18px;margin-bottom:32px">
+      <div style="display:flex;align-items:center;gap:18px;margin-bottom:28px">
         <input type="range" id="calc-tarifa" min="5" max="100" step="5" value="20">
         <span id="display-tarifa" style="font-size:22px;font-weight:800;min-width:64px;text-align:right">$ 20</span>
       </div>
+      <label class="label-text" style="display:block;margin-bottom:8px;">Parte del trabajo repetitivo que se automatiza</label>
+      <div id="calc-escenarios" role="group" aria-label="Parte del trabajo repetitivo que se automatiza" style="display:flex;gap:8px;margin-bottom:32px">
+        <button type="button" class="calc-escenario" data-factor="0.3" aria-pressed="false">30%</button>
+        <button type="button" class="calc-escenario is-active" data-factor="0.5" aria-pressed="true">50%</button>
+        <button type="button" class="calc-escenario" data-factor="0.7" aria-pressed="false">70%</button>
+      </div>
       <div style="border-top:1px solid var(--border);padding-top:24px;display:grid;grid-template-columns:1fr 1fr;gap:20px">
         <div>
-          <p style="margin:0;font-size:36px;font-weight:900;letter-spacing:-0.02em;color:var(--accent)"><span id="calc-horas-mes">36</span> h</p>
+          <p style="margin:0;font-size:36px;font-weight:900;letter-spacing:-0.02em;color:var(--accent)"><span id="calc-horas-mes">26</span> h</p>
           <p style="margin:4px 0 0;font-size:13.5px;color:var(--muted)">recuperadas por mes</p>
         </div>
         <div>
-          <p style="margin:0;font-size:36px;font-weight:900;letter-spacing:-0.02em">US$ <span id="calc-ahorro">720</span></p>
+          <p style="margin:0;font-size:36px;font-weight:900;letter-spacing:-0.02em">US$ <span id="calc-ahorro">520</span></p>
           <p style="margin:4px 0 0;font-size:13.5px;color:var(--muted)">valor estimado por mes</p>
         </div>
       </div>
-      <p style="margin:24px 0 0;font-size:12.5px;color:var(--muted)">Estimación orientativa (70% automatizado). La primera llamada es gratis; el diagnóstico a fondo es pago y se descuenta de la implementación.</p>
+      <p style="margin:24px 0 0;font-size:12.5px;color:var(--muted)">Estimación orientativa. No calcula el retorno de la inversión ni contempla los costos de implementación. La primera llamada es gratis; el diagnóstico a fondo es pago y se descuenta de la implementación.</p>
     </div>
   </div>
 </section>
@@ -388,8 +433,8 @@
       <!-- Formulario -->
       <form id="contact-form" style="display:flex;flex-direction:column;gap:14px">
         <input type="text" id="fName" name="name" placeholder="Nombre completo" aria-label="Nombre completo" autocomplete="name" required class="form-input">
-        <input type="email" id="fEmail" name="email" placeholder="Correo electrónico" aria-label="Correo electrónico" autocomplete="email" required class="form-input">
-        <input type="text" id="fPhone" name="phone" placeholder="WhatsApp / Teléfono" aria-label="WhatsApp o teléfono" autocomplete="tel" required class="form-input">
+        <input type="email" id="fEmail" name="email" placeholder="Correo electrónico (o dejá tu WhatsApp)" aria-label="Correo electrónico — opcional si dejás tu WhatsApp" autocomplete="email" class="form-input">
+        <input type="text" id="fPhone" name="phone" placeholder="WhatsApp / Teléfono (o dejá tu correo)" aria-label="WhatsApp o teléfono — opcional si dejás tu correo" autocomplete="tel" class="form-input">
         <input type="text" id="fCompany" name="company" placeholder="Nombre de tu empresa" aria-label="Nombre de tu empresa" autocomplete="organization" required class="form-input">
         <textarea id="fMessage" name="message" placeholder="¿Qué tarea te está robando más tiempo?" aria-label="¿Qué tarea te está robando más tiempo?" autocomplete="off" rows="3" style="resize:vertical" required class="form-input"></textarea>
 
@@ -414,7 +459,7 @@
         </div>
         
         <button type="submit" id="form-submit" class="btn-primary" style="padding:15px 28px;font-size:16px;margin-top:8px;border:none;width:100%;text-align:center;">
-          <span id="btn-text">Contáctanos</span>
+          <span id="btn-text">Solicitar evaluación inicial</span>
           <span id="btn-loader" style="display:none;">⏳ Enviando...</span>
         </button>
       </form>
