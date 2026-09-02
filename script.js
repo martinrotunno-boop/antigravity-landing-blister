@@ -179,29 +179,22 @@ document.addEventListener("DOMContentLoaded", () => {
   
   const renderTasks = () => {
     if (!tasksContainer) return;
-    const footerHtml = `
-      <div style="display:flex;justify-content:space-between;padding:14px 20px;font-size:12px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted)">
-        <span>Hoy</span><span id="tasks-count">${1 + taskIdx} de 5 tareas resueltas sin intervención</span>
-      </div>
-    `;
 
-    const tasksHtml = taskDefs.map((label, i) => {
+    tasksContainer.innerHTML = taskDefs.map((label, i) => {
       const active = i === taskIdx;
       const opacity = active ? 1 : 0.92;
       const dotColor = active ? 'var(--cta)' : 'var(--border)';
       const stateText = active ? 'Procesando' : 'Resuelto';
       const stateColor = active ? 'var(--accent)' : 'var(--muted)';
-      
+
       return `
         <div style="display:flex;align-items:center;gap:14px;padding:15px 20px;border-bottom:1px solid var(--border);opacity:${opacity};transition:opacity .4s">
           <span style="width:8px;height:8px;border-radius:50%;flex:none;background:${dotColor};transition:background .4s"></span>
           <span style="flex:1;font-size:14.5px;font-weight:500;color:var(--text)">${label}</span>
-          <span style="font-size:12.5px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:${stateColor}">${stateText}</span>
+          <span style="font-family:var(--mono);font-size:12.5px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:${stateColor}">${stateText}</span>
         </div>
       `;
     }).join("");
-
-    tasksContainer.innerHTML = tasksHtml + footerHtml;
   };
 
   renderTasks();
