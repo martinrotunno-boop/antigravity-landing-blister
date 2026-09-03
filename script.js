@@ -223,55 +223,272 @@ document.addEventListener("DOMContentLoaded", () => {
   // contadores #m1/#m2/#m4, que ya no existen.
 
 
-  // --- SAVINGS CALCULATOR ---
-  const calcHoras = document.getElementById("calc-horas");
-  const calcTarifa = document.getElementById("calc-tarifa");
-  const displayHoras = document.getElementById("display-horas");
-  const displayTarifa = document.getElementById("display-tarifa");
-  const calcHorasMes = document.getElementById("calc-horas-mes");
-  const calcAhorro = document.getElementById("calc-ahorro");
-  const calcEscenarios = document.getElementById("calc-escenarios");
-
-  // Parte del trabajo repetitivo que se automatiza. Arranca en 50% (botón
-  // is-active en el HTML) y lo cambian los botones 30/50/70.
-  let calcFactor = 0.5;
-
-  const updateCalculator = () => {
-    if(!calcHoras || !calcTarifa) return;
-    const horas = parseInt(calcHoras.value, 10);
-    const tarifa = parseInt(calcTarifa.value, 10);
-
-    displayHoras.textContent = `${horas} h`;
-    displayTarifa.textContent = `$ ${tarifa}`;
-
-    const horasMes = Math.round(horas * 4.3 * calcFactor);
-    const ahorroMes = horasMes * tarifa;
-
-    calcHorasMes.textContent = horasMes;
-    calcAhorro.textContent = ahorroMes.toLocaleString('es-UY');
-  };
-
-  if (calcHoras && calcTarifa) {
-    calcHoras.addEventListener("input", updateCalculator);
-    calcTarifa.addEventListener("input", updateCalculator);
-    updateCalculator();
-  }
-
-  if (calcEscenarios) {
-    const escenarioBtns = calcEscenarios.querySelectorAll(".calc-escenario");
-    escenarioBtns.forEach(btn => {
-      btn.addEventListener("click", () => {
-        const factor = parseFloat(btn.dataset.factor);
-        if (Number.isNaN(factor)) return;
-        calcFactor = factor;
-        escenarioBtns.forEach(b => {
-          const activo = b === btn;
-          b.classList.toggle("is-active", activo);
-          b.setAttribute("aria-pressed", activo ? "true" : "false");
-        });
-        updateCalculator();
-      });
+  // --- DIAGNOSTICO DE OPORTUNIDAD ---
+  // Reemplaza (2026-09-03) al estimador de sliders. Toda la aritmetica vive
+  // en estimar(), que es PURA: no toca el DOM ni lee nada global, para poder
+  // reimplementarla igual en Node y testearla. leerEstado() saca un objeto
+  // plano del DOM; render() lo baja a pantalla. El modulo tiene que quedar
+  // DENTRO de este callback: usa trackEvent y calendarUrl, que son const del
+  // closure.
+  const diagForm = document.getElementById("diag-form");
+  if (diagForm) {
+    const PROCESOS = {
+      "datos":         { estructura: 2, nota: "Cuando los dos sistemas tienen por dónde conectarse, es de lo más directo de automatizar." },
+      "carga-manual":  { estructura: 2, nota: "Lo que frena acá son los formatos: cuando cada archivo llega distinto, hay que resolver eso primero." },
+      "recordatorios": { estructura: 2, nota: "Casi todo el trabajo es decidir a quién y cuándo. Eso se define una vez y después corre solo." },
+      "reportes":      { estructura: 2, nota: "El armado se automatiza entero. La lectura y la conclusión siguen siendo tuyas." },
+      "conciliacion":  { estructura: 1, nota: "Encontrar las diferencias lo hace el sistema. Resolverlas casi siempre necesita criterio." },
+      "consultas":     { estructura: 1, nota: "Los casos comunes salen solos. Los raros conviene que sigan pasando por una persona." },
+      "seguimiento":   { estructura: 1, nota: "El seguimiento se dispara solo. La conversación que define la venta, no." },
+      "aprobaciones":  { estructura: 0, nota: "Se puede sacar la espera, el recordatorio y el registro. La decisión no." },
+      "otro":          { estructura: 1, nota: "Sin saber cuál es, lo tratamos como un caso intermedio." },
+    };
+    const FRECUENCIAS = {
+      "varias-dia":   { ejec: 63,   punt: 3 },
+      "dia":          { ejec: 21,   punt: 3 },
+      "algunos-dias": { ejec: 10.8, punt: 2 },
+      "semana":       { ejec: 4.3,  punt: 1 },
+      "quincena":     { ejec: 2.15, punt: 0 },
+      "mes":          { ejec: 1,    punt: 0 },
+    };
+    const DURACIONES = {
+      "menos-10": 7, "10-30": 20, "30-60": 45,
+      "60-120": 90, "120-240": 180, "mas-240": 300,
+    };
+    const ESTABILIDAD = {
+      "igual":  { factor: 1.15, punt: 2 },
+      "casi":   { factor: 1.0,  punt: 1 },
+      "cambia": { factor: 0.7,  punt: 0 },
+    };
+    const ESCENARIOS = {
+      "conservador": { min: 0.20, max: 0.35 },
+      "base":        { min: 0.35, max: 0.55 },
+      "ambicioso":   { min: 0.55, max: 0.70 },
+    };
+    const PROCESO_LABEL = {};
+    diagForm.querySelectorAll("#diag-proceso option").forEach((o) => {
+      PROCESO_LABEL[o.value] = o.textContent;
     });
+
+    const clamp = (v, lo, hi) => Math.min(Math.max(v, lo), hi);
+    const redondear = (h) => {
+      if (h < 20) return Math.round(h);
+      if (h < 100) return Math.round(h / 5) * 5;
+      return Math.round(h / 10) * 10;
+    };
+    const redondearPlata = (v) => {
+      if (v < 1000) return Math.round(v / 10) * 10;
+      return Math.round(v / 100) * 100;
+    };
+
+    // FUNCION PURA. Sin DOM, sin globals. Es lo unico que se testea.
+    const estimar = (s) => {
+      const P = PROCESOS[s.proceso] || PROCESOS["otro"];
+      const F = FRECUENCIAS[s.frecuencia] || FRECUENCIAS["dia"];
+      const minVuelta = DURACIONES[s.duracion] || DURACIONES["60-120"];
+      const E = ESTABILIDAD[s.estabilidad] || ESTABILIDAD["casi"];
+      const SC = ESCENARIOS[s.escenario] || ESCENARIOS["conservador"];
+
+      const cargaRaw = (F.ejec * minVuelta) / 60;
+      let carga = redondear(cargaRaw);
+      if (cargaRaw > 0 && carga < 1) carga = 1;
+
+      const pMin = clamp(SC.min * E.factor, 0.10, 0.75);
+      const pMax = clamp(SC.max * E.factor, 0.10, 0.75);
+
+      const tope = Math.floor(0.75 * carga);
+      let recMax = Math.min(redondear(carga * pMax), tope);
+      let recMin = redondear(carga * pMin);
+      if (recMax < 1) recMax = 1;
+      if (recMin < 1) recMin = 1;
+      if (recMin > recMax) recMin = recMax;
+
+      const anualMin = redondear(recMin * 12);
+      const anualMax = redondear(recMax * 12);
+      const colapsado = recMin === recMax;
+
+      // Nivel de oportunidad: 4 senales, 0-10. NO usa el escenario.
+      let puntaje = 0;
+      if (carga >= 40) puntaje += 3;
+      else if (carga >= 20) puntaje += 2;
+      else if (carga >= 8) puntaje += 1;
+      puntaje += F.punt + E.punt + P.estructura;
+      let nivel = puntaje >= 7 ? "alta" : puntaje >= 4 ? "media" : "baja";
+      // Piso: bajo ~8 h/mes la oportunidad no pasa de "baja", por mas frecuente
+      // o estable que sea el proceso. El premio es chico y no cambia eso que
+      // sube el puntaje (frecuencia + estabilidad + estructura).
+      if (carga < 8) nivel = "baja";
+
+      const raw = (s.costo == null ? "" : String(s.costo)).trim();
+      const n = Number(raw);
+      const costoOk = raw !== "" && Number.isFinite(n) && n >= 1 && n <= 500;
+      const costoInvalido = raw !== "" && !costoOk;
+      let economico = null;
+      if (costoOk) {
+        economico = {
+          mesMin: redondearPlata(recMin * n),
+          mesMax: redondearPlata(recMax * n),
+          anioMin: redondearPlata(recMin * n * 12),
+          anioMax: redondearPlata(recMax * n * 12),
+        };
+      }
+
+      return { carga, recMin, recMax, anualMin, anualMax, colapsado, nivel, puntaje, nota: P.nota, economico, costoInvalido };
+    };
+
+    const leerEstado = () => ({
+      proceso: document.getElementById("diag-proceso").value,
+      frecuencia: document.getElementById("diag-frecuencia").value,
+      duracion: document.getElementById("diag-duracion").value,
+      estabilidad: (diagForm.querySelector('input[name="diag-estabilidad"]:checked') || {}).value || "casi",
+      escenario: (diagForm.querySelector('input[name="diag-escenario"]:checked') || {}).value || "conservador",
+      costo: (document.getElementById("diag-costo").value || "").trim(),
+    });
+
+    const NIVEL_TXT = { alta: "Oportunidad alta", media: "Oportunidad media", baja: "Oportunidad baja" };
+    const LECTURA = {
+      alta: "Por volumen y regularidad, es de los procesos que miraríamos primero.",
+      media: "Hay algo para hacer. Conviene empezar por la parte más repetitiva y medir.",
+      baja: "El volumen es chico. Puede seguir valiendo la pena, pero probablemente haya un proceso mejor por dónde arrancar.",
+    };
+    const hs = (n) => (n === 1 ? "1 hora" : n + " h");
+    const horas = (n) => (n === 1 ? "1 hora" : n + " horas");
+
+    const nivelEl = document.getElementById("diag-nivel");
+    const cargaEl = document.getElementById("diag-carga");
+    const rangoEl = document.getElementById("diag-rango");
+    const anualEl = document.getElementById("diag-anual");
+    const fraseEl = document.getElementById("diag-frase");
+    const notaEl = document.getElementById("diag-nota");
+    const ctaEl = document.getElementById("diag-cta");
+    const ecoOut = document.getElementById("diag-eco-out");
+    const prev = {};
+
+    const flash = (el) => {
+      el.classList.remove("diag-flash");
+      void el.offsetWidth; // fuerza reflow para reiniciar la animacion
+      el.classList.add("diag-flash");
+    };
+
+    const render = (r, procLabel) => {
+      nivelEl.textContent = NIVEL_TXT[r.nivel];
+      nivelEl.classList.toggle("is-alta", r.nivel === "alta");
+      nivelEl.classList.toggle("is-media", r.nivel === "media");
+      nivelEl.classList.toggle("is-baja", r.nivel === "baja");
+
+      cargaEl.textContent = r.carga;
+      rangoEl.textContent = r.colapsado ? hs(r.recMax) : r.recMin + " a " + hs(r.recMax);
+      anualEl.textContent = r.anualMin === r.anualMax
+        ? "Cerca de " + r.anualMax + " horas al año."
+        : "Cerca de " + r.anualMin + " a " + r.anualMax + " horas al año.";
+
+      const seg = r.colapsado
+        ? "Una automatización parcial podría recuperar alrededor de " + hs(r.recMax) + ", contando ya la revisión humana que va a seguir haciendo falta."
+        : "Una automatización parcial podría recuperar entre " + r.recMin + " y " + hs(r.recMax) + ", contando ya la revisión humana que va a seguir haciendo falta.";
+      fraseEl.textContent = "Este proceso consume alrededor de " + horas(r.carga) + " por mes. " + seg + " " + LECTURA[r.nivel];
+      notaEl.textContent = r.nota;
+
+      if (r.economico) {
+        var e = r.economico;
+        var mes = e.mesMin === e.mesMax
+          ? "US$ " + e.mesMax.toLocaleString("es-UY")
+          : "US$ " + e.mesMin.toLocaleString("es-UY") + " a US$ " + e.mesMax.toLocaleString("es-UY");
+        var anio = e.anioMin === e.anioMax
+          ? "US$ " + e.anioMax.toLocaleString("es-UY")
+          : "US$ " + e.anioMin.toLocaleString("es-UY") + " a US$ " + e.anioMax.toLocaleString("es-UY");
+        ecoOut.innerHTML =
+          '<span class="diag-cifra-rot">Valor potencial del tiempo que se libera</span>' +
+          '<p style="margin:2px 0 0"><span class="diag-eco-val">' + mes + "</span> por mes</p>" +
+          '<p style="margin:2px 0 0;font-size:13px;color:var(--muted)">' + anio + " al año</p>";
+      } else if (r.costoInvalido) {
+        ecoOut.innerHTML = '<p class="diag-eco-aviso">Poné un valor entre 1 y 500.</p>';
+      } else {
+        ecoOut.textContent = "";
+      }
+
+      if (calendarUrl) {
+        ctaEl.href = calendarUrl;
+        ctaEl.target = "_blank";
+        ctaEl.rel = "noopener";
+        ctaEl.textContent = "Agendar para revisar este proceso";
+      } else {
+        var msg = 'Hola. Estuve usando el diagnóstico de la web. El proceso es "' + procLabel +
+          '", nos consume cerca de ' + r.carga + " horas por mes y me gustaría revisarlo con ustedes.";
+        ctaEl.href = "https://wa.me/59899508432?text=" + encodeURIComponent(msg);
+      }
+
+      if (prev.carga !== cargaEl.textContent) flash(cargaEl);
+      if (prev.rango !== rangoEl.textContent) flash(rangoEl);
+      if (prev.nivel !== nivelEl.textContent) flash(nivelEl);
+      prev.carga = cargaEl.textContent;
+      prev.rango = rangoEl.textContent;
+      prev.nivel = nivelEl.textContent;
+    };
+
+    const actualizar = () => {
+      const s = leerEstado();
+      render(estimar(s), PROCESO_LABEL[s.proceso] || "un proceso");
+    };
+
+    // --- Analitica. trackEvent ya no hace nada si no hay consentimiento. ---
+    let yaArranco = false;
+    let completedEnviado = false;
+    let ecoEnviado = false;
+    let metodoEnviado = false;
+    let completedTimer = null;
+
+    const paramsBase = () => {
+      const s = leerEstado();
+      const r = estimar(s);
+      return { process_type: s.proceso, monthly_hours: r.carga, opportunity_level: r.nivel, scenario: s.escenario };
+    };
+
+    diagForm.addEventListener("change", (ev) => {
+      actualizar();
+      if (!yaArranco) {
+        yaArranco = true;
+        trackEvent("calculator_started", { first_field: ev.target.id || ev.target.name || "" });
+      }
+      if (ev.target.id === "diag-proceso") {
+        trackEvent("process_type_selected", { process_type: ev.target.value });
+      }
+      clearTimeout(completedTimer);
+      completedTimer = setTimeout(() => {
+        if (completedEnviado) return;
+        completedEnviado = true;
+        trackEvent("calculator_completed", paramsBase());
+      }, 900);
+    });
+
+    // El costo actualiza en vivo pero no dispara started/completed.
+    document.getElementById("diag-costo").addEventListener("input", actualizar);
+
+    document.getElementById("diag-eco").addEventListener("toggle", (ev) => {
+      if (ev.target.open && !ecoEnviado) {
+        ecoEnviado = true;
+        trackEvent("economic_impact_opened", { process_type: leerEstado().proceso });
+      }
+    });
+    document.getElementById("diag-metodo").addEventListener("toggle", (ev) => {
+      if (ev.target.open && !metodoEnviado) {
+        metodoEnviado = true;
+        trackEvent("methodology_opened", {});
+      }
+    });
+    // OJO: #diag-cta NO lleva data-cta="agendar" a proposito. Ese selector ya
+    // tiene un listener (whatsapp_click, mas abajo) y el swap de CALENDAR_URL
+    // le pisaria href y texto, borrando el mensaje prellenado.
+    ctaEl.addEventListener("click", () => {
+      // Garantiza completed >= cta_clicked en el embudo, aunque el visitante
+      // no haya tocado ningun control (el panel renderiza en load).
+      if (!completedEnviado) {
+        completedEnviado = true;
+        trackEvent("calculator_completed", paramsBase());
+      }
+      trackEvent("calculator_cta_clicked", paramsBase());
+    });
+
+    actualizar(); // render inicial: el panel nunca aparece vacio
   }
 
 

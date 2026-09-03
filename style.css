@@ -291,6 +291,107 @@ a:hover {
   padding: 120px 28px 70px;
 }
 
+/* ============================================================
+   ALTERNANCIA DE SUPERFICIES (2026-09-02, ref. gpcsg.com)
+   ============================================================
+   .surface-band -> ritmo sutil: la seccion pasa de --bg a --surface, o sea
+   negro (#141416) / gris oscuro (#1E1F22) en tema oscuro, y su espejo en
+   claro. El separador real es el borde de 1px. Lo llevan #proceso, FLUJO y
+   FILOSOFIA, alternando con las secciones en --bg de alrededor.
+   Se probo una inversion fuerte (tokens del tema opuesto) y quedo demasiado
+   marcada -> descartada el 2026-09-02.
+   El contenido va en un hijo .band-inner (columna de 1140 + padding), como
+   ya hacian FLUJO y FILOSOFIA con su div interno. */
+.surface-band {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.band-inner {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 100px 28px;
+}
+
+/* Pildora de metadato (mono). Hermana de .label-text y .flow-tag: rotulo de
+   instrumento, no de folleto. Solo borde, sin relleno: asi se lee igual
+   sobre --bg y sobre --surface. Mayusculas por CSS y no en el HTML, para
+   que el lector de pantalla lea "20 min", no las letras sueltas. */
+.meta-pill {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 13px;
+  white-space: nowrap;
+}
+
+/* Bloque de acento macizo (ref. gpcsg.com). UNA sola en toda la pagina, es
+   una tarjeta dentro de la grilla de #casos (no una banda a sangre) y NO
+   lleva .premium-card: el foco radial de --accent sobre naranja se ve barro.
+   Sobre #FF9100 solo se escribe con --on-cta (8.2:1); nada de --muted ni de
+   opacity sobre el texto. Como --cta/--on-cta valen igual en los dos temas,
+   se ve identica en claro y en oscuro. */
+.accent-card {
+  grid-column: 1 / -1;
+  background: var(--cta);
+  color: var(--on-cta);
+  border-radius: 16px;
+  padding: 36px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  flex-wrap: wrap;
+}
+
+.accent-eyebrow {
+  margin: 0 0 8px;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.accent-titulo {
+  margin: 0;
+  font-size: clamp(20px, 2.2vw, 27px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+/* Boton para usar DENTRO del bloque naranja: .btn-primary ahi seria naranja
+   sobre naranja. Invierte a --on-cta / --cta, los dos tokens que no cambian
+   por tema. Gana a `a:hover { color: var(--accent) }` por especificidad de
+   clase, sin !important. */
+.btn-on-accent {
+  display: inline-block;
+  background: var(--on-cta);
+  color: var(--cta);
+  font-weight: 700;
+  font-size: 16px;
+  padding: 13px 26px;
+  border-radius: 999px;
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-on-accent:hover {
+  color: var(--cta);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28);
+}
+
 /* Tarjeta del CTA final (sección #contacto). El padding está acá y no inline
    para poder achicarlo en teléfono: con 48px por lado, en una pantalla de 375px
    al formulario le quedaban 241px útiles. */
@@ -304,38 +405,6 @@ a:hover {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--muted);
-}
-
-/* Selector de escenario del estimador (30 / 50 / 70 %). Mismo lenguaje que
-   .btn-secondary pero en versión chip; el activo se marca con el naranja CTA. */
-.calc-escenario {
-  flex: 1;
-  padding: 9px 0;
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--muted);
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.calc-escenario:hover {
-  color: var(--text);
-  border-color: color-mix(in srgb, var(--border) 50%, var(--text));
-}
-
-.calc-escenario.is-active {
-  color: var(--text);
-  border-color: var(--cta);
-  background: color-mix(in srgb, var(--cta) 12%, transparent);
-}
-
-.calc-escenario:focus-visible {
-  outline: none;
-  border-color: var(--cta);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cta) 20%, transparent);
 }
 
 /* Franja editorial "antes -> sistema -> despues" (B11). Rompe la racha de
@@ -478,13 +547,6 @@ a:hover {
   line-height: 1.65;
   color: var(--muted);
   max-width: 680px;
-}
-
-/* Custom Range Input */
-input[type=range] {
-  flex: 1;
-  accent-color: var(--cta);
-  cursor: pointer;
 }
 
 /* Inputs */
@@ -933,6 +995,14 @@ input[type=range] {
     padding: 80px 20px 56px;
   }
 
+  .band-inner {
+    padding: 72px 20px;
+  }
+
+  .accent-card {
+    padding: 28px 22px;
+  }
+
   /* En 320px el nav se salía de la barra: logo + nombre + tema + WhatsApp
      sumaban ~358px. Se recorta el aire y las piezas, sin sacar ninguna. */
   .nav-content {
@@ -1341,44 +1411,83 @@ body > * { position: relative; z-index: 1; }
   border-color: color-mix(in srgb, var(--accent) 32%, var(--border));
 }
 
-/* --- 5. Riel numerado del metodo -------------------------------------- */
-/* Los tres pasos tenian un border-top plano y nada mas. Ahora el borde es
-   un riel que se dibuja de izquierda a derecha cuando la seccion entra en
-   pantalla, con el numero de paso apoyado encima. El borde inline queda
-   como base tenue: si el JS no corre, igual se ve una linea. */
-#proceso .b-cols { counter-reset: paso; }
-
-#proceso .b-cols > div {
-  position: relative;
-  counter-increment: paso;
-  border-top-color: var(--border) !important;
-  padding-top: 30px !important;
+/* --- 5. Lista numerada del metodo ----------------------------------- */
+/* (2026-09-02) Reemplaza al riel de 3 columnas (ref. gpcsg.com). Cuatro
+   filas apiladas: numero mono + titulo + parrafo, y una pildora de metadato
+   a la derecha solo donde hay un dato real (paso 01). Entre fila y fila una
+   linea de 1px que se dibuja de izquierda a derecha al entrar en pantalla:
+   es el gesto del riel viejo, girado. La primera fila no lleva linea arriba
+   (la abre el h2). Los numeros 01-04 van en el HTML, no como counter: se
+   habian sacado el 2026-09-01, volvieron el 2026-09-02 por pedido de Martin
+   con la seccion ya reescrita. */
+.proceso-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
-#proceso .b-cols > div::after {
+.proceso-paso {
+  position: relative;
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr) auto;
+  gap: 0 32px;
+  align-items: start;
+  padding: 34px 0;
+}
+
+.proceso-paso + .proceso-paso::before {
   content: "";
   position: absolute;
-  top: -2px;
+  top: 0;
   left: 0;
   right: 0;
-  height: 2px;
-  background: var(--text);
+  height: 1px;
+  background: var(--border);
   transform: scaleX(0);
   transform-origin: left center;
-  transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-#proceso .b-cols.is-visible > div::after { transform: scaleX(1); }
-#proceso .b-cols > div:nth-child(2)::after { transition-delay: 0.12s; }
-#proceso .b-cols > div:nth-child(3)::after {
-  transition-delay: 0.24s;
-  background: var(--accent);
+.proceso-lista.is-visible .proceso-paso + .proceso-paso::before {
+  transform: scaleX(1);
 }
 
-/* Los números de paso (01/02/03) se quitaron el 2026-09-01 (pedido de Martín,
-   junto con la numeración de secciones). El riel del ::after queda entero y
-   la intención la sostienen la animación scaleX y el acento del tercer paso.
-   counter-reset / counter-increment quedan inertes, sin efecto visible. */
+.proceso-lista.is-visible .proceso-paso:nth-child(3)::before { transition-delay: 0.1s; }
+.proceso-lista.is-visible .proceso-paso:nth-child(4)::before { transition-delay: 0.2s; }
+
+/* El numero en --accent (no --cta): sobre fondo claro el naranja brillante
+   cae a ~2:1. --accent esta calculado para pasar AA en los dos temas. */
+.proceso-num {
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  padding-top: 5px;
+}
+
+.proceso-titulo {
+  margin: 0 0 10px;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.proceso-texto {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--muted);
+  max-width: 620px;
+  text-wrap: pretty;
+}
+
+.proceso-paso .meta-pill {
+  justify-self: end;
+  align-self: start;
+  margin-top: 4px;
+}
 
 /* --- 6. (libre) La banda de metricas se elimino el 2026-08-29; su CSS
    (#metrics-section: rieles verticales y cifras tabulares) se fue con ella.
@@ -1466,17 +1575,370 @@ body::after {
   .premium-card,
   .hero-system-card { transition: none; }
 
-  /* El riel del metodo no se dibuja: aparece entero. Sin esto, para quien
-     pide menos movimiento la linea quedaria en scaleX(0) para siempre. */
-  #proceso .b-cols > div::after {
+  /* Las lineas del metodo no se dibujan: aparecen enteras. Sin esto
+     quedarian en scaleX(0) para siempre. */
+  .proceso-paso + .proceso-paso::before {
     transition: none;
     transform: scaleX(1);
   }
 }
 
-/* En pantallas chicas la grilla colapsa a una columna: el riel de cada
-   paso queda apilado y el numero pisaria menos, pero el padding extra
-   sobra. Se ajusta para que no se abra un hueco entre pasos. */
+/* En pantalla angosta la pildora baja debajo del texto y el numero se
+   arrima: con 84px de columna a 375px al parrafo le quedaban ~210px. */
 @media (max-width: 920px) {
-  #proceso .b-cols > div { padding-top: 26px !important; }
+  .proceso-paso {
+    grid-template-columns: 52px minmax(0, 1fr);
+    gap: 0 18px;
+    padding: 26px 0;
+  }
+  .proceso-paso .meta-pill {
+    grid-column: 2;
+    justify-self: start;
+    margin: 12px 0 0;
+  }
+  .proceso-titulo { font-size: 20px; }
+}
+
+/* --- 9. Diagnostico de oportunidad (2026-09-03) --------------------- */
+/* Reemplaza al estimador de sliders. Todo prefijado .diag-*; los unicos
+   selectores de elemento (summary, fieldset, legend) van SIEMPRE como
+   descendientes de un .diag-*, para no tocar el FAQ ni el form de #contacto.
+   Colores: todo por tokens. Texto coloreado en --accent, nunca --cta
+   (el naranja brillante cae a ~2:1 sobre fondo claro); --cta solo en
+   bordes, fondos al 12% y sombras de foco. Va al final del archivo a
+   proposito: gana los empates de cascada sin !important. */
+
+.diag-grid { gap: 32px; }
+
+.diag-panel {
+  display: grid;
+  gap: 22px;
+}
+
+.diag-campo {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-inline-size: 0;
+}
+
+.diag-campo-label,
+.diag-campo legend {
+  display: block;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+  padding: 0;
+}
+
+.diag-ayuda {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted);
+  margin: 0 0 10px;
+}
+
+.diag-select {
+  width: 100%;
+  box-sizing: border-box;
+  background-color: var(--bg);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23A3A7AD' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 11px 38px 11px 14px;
+  font-family: inherit;
+  font-size: 15px;
+  color: var(--text);
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+:root[data-theme="claro"] .diag-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235D6167' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+.diag-select:focus-visible,
+.diag-num:focus-visible {
+  outline: none;
+  border-color: var(--cta);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cta) 20%, transparent);
+}
+
+.diag-opts {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.diag-opt-input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  pointer-events: none;
+}
+
+.diag-opt {
+  flex: 1;
+  min-width: 96px;
+  text-align: center;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.diag-opt:hover {
+  color: var(--text);
+  border-color: color-mix(in srgb, var(--border) 50%, var(--text));
+}
+
+.diag-opt-input:checked + .diag-opt {
+  color: var(--text);
+  border-color: var(--cta);
+  background: color-mix(in srgb, var(--cta) 12%, transparent);
+}
+
+.diag-opt-input:focus-visible + .diag-opt {
+  border-color: var(--cta);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cta) 20%, transparent);
+}
+
+.diag-resultado {
+  background: var(--soft);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px;
+  display: grid;
+  gap: 18px;
+  align-content: start;
+}
+
+/* Los items calculados van en este wrapper con aria-live; hereda el mismo
+   ritmo de grilla que tenian como hijos directos de .diag-resultado. */
+.diag-live {
+  display: grid;
+  gap: 18px;
+}
+
+/* El nivel "alta" se marca con borde y fondo tenue en acento, no con el
+   texto: --accent como color de texto en la pildora (11.5px) queda en
+   ~4.4:1 sobre --soft, apenas por debajo de AA. El texto va en --text. */
+.diag-nivel.is-alta {
+  color: var(--text);
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.diag-cifra { display: grid; }
+
+.diag-cifra-rot {
+  display: block;
+  font-size: 12.5px;
+  color: var(--muted);
+  margin-bottom: 2px;
+}
+
+.diag-hoy {
+  margin: 0;
+  font-size: 48px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.diag-sub {
+  display: block;
+  font-size: 13.5px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.diag-recup {
+  margin: 0;
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.diag-anual {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.diag-frase {
+  margin: 0;
+  font-size: 15.5px;
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+.diag-nota {
+  margin: 0;
+  padding-left: 14px;
+  border-left: 2px solid var(--accent);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+.diag-cta {
+  justify-self: start;
+  padding: 13px 26px;
+  font-size: 16px;
+}
+
+.diag-microcopy {
+  margin: -8px 0 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.diag-eco,
+.diag-metodo {
+  border-top: 1px solid var(--border);
+}
+
+.diag-metodo {
+  border-bottom: 1px solid var(--border);
+  margin-top: 40px;
+  max-width: 840px;
+}
+
+.diag-eco summary,
+.diag-metodo summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  font-weight: 700;
+  padding: 18px 0;
+}
+
+.diag-eco summary::-webkit-details-marker,
+.diag-metodo summary::-webkit-details-marker { display: none; }
+
+.diag-eco summary::after,
+.diag-metodo summary::after {
+  content: "+";
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--muted);
+  line-height: 1;
+}
+
+.diag-eco[open] summary::after,
+.diag-metodo[open] summary::after { content: "\2212"; }
+
+.diag-eco summary:focus-visible,
+.diag-metodo summary:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cta) 20%, transparent);
+  border-radius: 8px;
+}
+
+.diag-num {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 11px 14px;
+  width: 160px;
+  max-width: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: 15px;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.diag-num::-webkit-outer-spin-button,
+.diag-num::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+.diag-eco-out {
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 4px 0 0;
+}
+
+.diag-eco-val {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.diag-eco-aviso {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 4px 0 0;
+}
+
+.diag-eco-nota {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--muted);
+  margin: 12px 0 4px;
+}
+
+.diag-metodo-body {
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--muted);
+  padding-bottom: 24px;
+}
+
+.diag-metodo-body h4 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 18px 0 6px;
+}
+
+.diag-metodo-body p { margin: 0 0 4px; }
+.diag-metodo-body ul { padding-left: 20px; margin: 0; }
+
+@keyframes diag-flash {
+  from { opacity: 0.45; transform: translateY(3px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .diag-flash { animation: diag-flash 0.22s cubic-bezier(0.16, 1, 0.3, 1) both; }
+}
+
+@media (max-width: 920px) {
+  .diag-grid { gap: 24px; }
+  .diag-resultado { padding: 26px; }
+  .diag-hoy { font-size: 42px; }
+  .diag-recup { font-size: 30px; }
+}
+
+@media (max-width: 640px) {
+  .diag-panel { padding: 22px; }
+  .diag-resultado { padding: 22px; }
+  .diag-hoy { font-size: 38px; }
+  .diag-recup { font-size: 27px; }
+  .diag-opt { flex: 1 1 100%; padding: 13px 12px; } /* >=44px tactiles */
+  .diag-cta { justify-self: stretch; text-align: center; }
+  .diag-num { width: 100%; }
 }

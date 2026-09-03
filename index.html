@@ -213,27 +213,50 @@
 </section>
 
 <!-- PROCESO -->
-<section id="proceso" class="section-container">
-  <div class="scroll-anim fade-up">
-    <p class="label-text" style="margin:0 0 14px;">Cómo trabajamos</p>
-    <h2 style="margin:0 0 48px;font-size:clamp(30px,3.6vw,44px);font-weight:800;letter-spacing:-0.02em;max-width:640px;text-wrap:balance">El método BLISTER</h2>
-  </div>
-  <div class="b-cols scroll-anim fade-up" style="grid-template-columns:repeat(3,1fr);gap:32px">
-    <div style="border-top:2px solid var(--text);padding-top:24px">
-      <p class="label-text" style="margin:0 0 12px;">DETECTAR</p>
-      <h3 style="margin:0 0 10px;font-size:22px;font-weight:700">Detectamos cuellos de botella</h3>
-      <p style="margin:0;font-size:15px;line-height:1.55;color:var(--muted)">Dónde se pierde tiempo hoy: qué tareas se repiten, qué se hace a mano, qué se cae por el camino.</p>
+<!-- 2026-09-02: seccion reescrita al estilo lista-numerada (ref. gpcsg.com).
+     Pasa de .section-container a .surface-band: alterna --bg / --surface con
+     las secciones vecinas para dar ritmo (negro / gris oscuro). Los numeros
+     01-04 son decorativos (aria-hidden): el ordinal lo aporta el
+     <ol role="list"> — el role explicito porque list-style:none le saca la
+     semantica de lista a VoiceOver. Se habian sacado el 2026-09-01, volvieron
+     el 2026-09-02 por pedido de Martin. -->
+<section id="proceso" class="surface-band">
+  <div class="band-inner">
+    <div class="scroll-anim fade-up">
+      <p class="label-text" style="margin:0 0 14px;">Cómo trabajamos</p>
+      <h2 style="margin:0 0 48px;font-size:clamp(30px,3.6vw,44px);font-weight:800;letter-spacing:-0.02em;max-width:640px;text-wrap:balance">El método BLISTER</h2>
     </div>
-    <div style="border-top:2px solid var(--text);padding-top:24px">
-      <p class="label-text" style="margin:0 0 12px;">DISEÑAR</p>
-      <h3 style="margin:0 0 10px;font-size:22px;font-weight:700">Desarrollamos la solución</h3>
-      <p style="margin:0;font-size:15px;line-height:1.55;color:var(--muted)">Diseñamos una solución con las herramientas que mejor se integran entre sí, para que la IA trabaje por ustedes.</p>
-    </div>
-    <div style="border-top:2px solid var(--cta);padding-top:24px">
-      <p class="label-text" style="margin:0 0 12px;">AUTOMATIZAR</p>
-      <h3 style="margin:0 0 10px;font-size:22px;font-weight:700">Implementamos y mantenemos</h3>
-      <p style="margin:0;font-size:15px;line-height:1.55;color:var(--muted)">Ponemos el sistema a trabajar y lo sostenemos en producción. No te dejamos solo con la herramienta.</p>
-    </div>
+    <ol class="proceso-lista scroll-anim fade-up" role="list">
+      <li class="proceso-paso">
+        <span class="proceso-num" aria-hidden="true">01</span>
+        <div>
+          <h3 class="proceso-titulo">Llamada de reunión inicial</h3>
+          <p class="proceso-texto">Para entender cómo trabajás hoy, qué problema querés resolver y evaluar si podemos ayudarte.</p>
+        </div>
+        <span class="meta-pill">20 min · sin costo</span>
+      </li>
+      <li class="proceso-paso">
+        <span class="proceso-num" aria-hidden="true">02</span>
+        <div>
+          <h3 class="proceso-titulo">Detectar</h3>
+          <p class="proceso-texto">Diagnosticamos los cuellos de botella, dónde se pierde tiempo hoy. Qué tareas se repiten, qué se hace a mano, qué se cae por el camino.</p>
+        </div>
+      </li>
+      <li class="proceso-paso">
+        <span class="proceso-num" aria-hidden="true">03</span>
+        <div>
+          <h3 class="proceso-titulo">Diseñar</h3>
+          <p class="proceso-texto">Diseñamos una solución con las herramientas que mejor se integran entre sí, para que la IA trabaje por ustedes.</p>
+        </div>
+      </li>
+      <li class="proceso-paso">
+        <span class="proceso-num" aria-hidden="true">04</span>
+        <div>
+          <h3 class="proceso-titulo">Automatizar</h3>
+          <p class="proceso-texto">Implementamos y mantenemos la solución. Ponemos el sistema a trabajar y lo sostenemos en producción. No te dejamos solo con la herramienta.</p>
+        </div>
+      </li>
+    </ol>
   </div>
 </section>
 
@@ -260,11 +283,20 @@
       <h3 style="margin:0 0 10px;font-size:19px;font-weight:700">Una base de conocimiento para tu equipo</h3>
       <p style="margin:0;font-size:15px;line-height:1.6;color:var(--muted)">Un asistente interno que responde con la información de tu negocio, para que nadie dependa de "preguntarle al que sabe".</p>
     </div>
+    <!-- Bloque de acento macizo (2026-09-02, ref. gpcsg.com). UNA sola en toda
+         la pagina; vive dentro de la grilla, no a sangre. Ver .accent-card. -->
+    <div class="accent-card">
+      <div>
+        <p class="accent-eyebrow">Llamada exploratoria</p>
+        <p class="accent-titulo">La primera llamada es gratis.</p>
+      </div>
+      <a href="#contacto" class="btn-on-accent">Coordinar llamada exploratoria</a>
+    </div>
   </div>
 </section>
 
 <!-- FLUJO: ANTES -> SISTEMA -> DESPUES (B11) -->
-<section style="border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--surface)">
+<section class="surface-band">
   <div class="scroll-anim fade-up" style="max-width:1140px;margin:0 auto;padding:100px 28px">
     <p class="label-text" style="margin:0 0 14px;">Cómo cambia el proceso</p>
     <h2 style="margin:0 0 48px;font-size:clamp(28px,3.4vw,42px);font-weight:800;letter-spacing:-0.02em;text-wrap:balance;max-width:720px">De trabajo que se empuja a mano a un proceso que corre solo<span style="color:var(--cta)">.</span></h2>
@@ -302,48 +334,165 @@
   </div>
 </section>
 
-<!-- CALCULADORA -->
+<!-- DIAGNOSTICO DE OPORTUNIDAD -->
+<!-- 2026-09-03: reemplaza al "estimador" de sliders. Es un diagnostico:
+     parte de un proceso concreto y estima su carga operativa; el valor en
+     plata es secundario y vive detras de un <details>. Toda la logica de
+     calculo esta en la funcion pura estimar() de script.js.
+     NO usa .accent-card (hay una sola por pagina, la tiene #casos) ni
+     .premium-card (su hover lift + listener de pointermove sobre un panel
+     con controles adentro es hostil). El panel usa .card a secas. -->
 <section id="calculadora" class="section-container">
-  <div class="b-cols scroll-anim fade-up" style="grid-template-columns:1fr 1fr;gap:64px;align-items:start">
-    <div>
-      <p class="label-text" style="margin:0 0 14px;">Estimador de oportunidad</p>
-      <h2 style="margin:0 0 18px;font-size:clamp(30px,3.6vw,44px);font-weight:800;letter-spacing:-0.02em;text-wrap:balance">¿Cuánto tiempo estás perdiendo?</h2>
-      <p style="margin:0;font-size:17px;line-height:1.6;color:var(--muted);max-width:480px">Una estimación simple: contá las horas que tu equipo dedica cada semana a tareas repetitivas y mirá qué pasa según cuánto de eso se automatice.</p>
-    </div>
-    <div class="card premium-card" style="padding:32px;">
-      <label class="label-text" style="display:block;margin-bottom:8px;">Horas semanales repetitivas</label>
-      <div style="display:flex;align-items:center;gap:18px;margin-bottom:28px">
-        <input type="range" id="calc-horas" min="2" max="60" step="1" value="12">
-        <span id="display-horas" style="font-size:22px;font-weight:800;min-width:64px;text-align:right">12 h</span>
+  <div class="scroll-anim fade-up">
+    <p class="label-text" style="margin:0 0 14px;">Diagnóstico de oportunidad</p>
+    <h2 style="margin:0 0 16px;font-size:clamp(30px,3.6vw,44px);font-weight:800;letter-spacing:-0.02em;text-wrap:balance">¿Cuánto trabajo manual hay detrás de este proceso?</h2>
+    <p style="margin:0;font-size:17px;line-height:1.6;color:var(--muted);max-width:620px;text-wrap:pretty">Elegí un proceso y estimá cuánto tiempo operativo consume hoy. Sin promesas infladas: son rangos, no una cotización.</p>
+  </div>
+
+  <div class="b-cols diag-grid" style="grid-template-columns:1fr 1fr;align-items:start;margin-top:40px">
+
+    <form class="card diag-panel" id="diag-form" novalidate>
+      <div class="diag-campo">
+        <label class="diag-campo-label" for="diag-proceso">¿Qué proceso querés mirar?</label>
+        <p class="diag-ayuda" id="diag-proceso-ayuda">Elegí el que más se parezca al tuyo. No hace falta que sea exacto.</p>
+        <select class="diag-select" id="diag-proceso" aria-describedby="diag-proceso-ayuda">
+          <option value="datos">Carga y traspaso de datos entre sistemas</option>
+          <option value="carga-manual">Carga manual de información</option>
+          <option value="recordatorios">Envío de recordatorios y avisos</option>
+          <option value="reportes">Preparación de reportes</option>
+          <option value="conciliacion">Conciliación de información entre fuentes</option>
+          <option value="consultas">Clasificación de consultas que entran</option>
+          <option value="seguimiento">Seguimiento de clientes y oportunidades</option>
+          <option value="aprobaciones">Coordinación y aprobaciones internas</option>
+          <option value="otro">Otro proceso repetitivo</option>
+        </select>
       </div>
-      <label class="label-text" style="display:block;margin-bottom:8px;">Costo por hora (USD)</label>
-      <div style="display:flex;align-items:center;gap:18px;margin-bottom:28px">
-        <input type="range" id="calc-tarifa" min="5" max="100" step="5" value="20">
-        <span id="display-tarifa" style="font-size:22px;font-weight:800;min-width:64px;text-align:right">$ 20</span>
+
+      <div class="diag-campo">
+        <label class="diag-campo-label" for="diag-frecuencia">¿Cada cuánto pasa?</label>
+        <p class="diag-ayuda" id="diag-frecuencia-ayuda">Cuántas veces se ejecuta el proceso completo.</p>
+        <select class="diag-select" id="diag-frecuencia" aria-describedby="diag-frecuencia-ayuda">
+          <option value="varias-dia">Varias veces por día</option>
+          <option value="dia" selected>Todos los días</option>
+          <option value="algunos-dias">Algunos días de la semana</option>
+          <option value="semana">Una vez por semana</option>
+          <option value="quincena">Cada quince días</option>
+          <option value="mes">Una vez por mes</option>
+        </select>
       </div>
-      <label class="label-text" style="display:block;margin-bottom:8px;">Parte del trabajo repetitivo que se automatiza</label>
-      <div id="calc-escenarios" role="group" aria-label="Parte del trabajo repetitivo que se automatiza" style="display:flex;gap:8px;margin-bottom:32px">
-        <button type="button" class="calc-escenario" data-factor="0.3" aria-pressed="false">30%</button>
-        <button type="button" class="calc-escenario is-active" data-factor="0.5" aria-pressed="true">50%</button>
-        <button type="button" class="calc-escenario" data-factor="0.7" aria-pressed="false">70%</button>
+
+      <div class="diag-campo">
+        <label class="diag-campo-label" for="diag-duracion">¿Cuánto lleva cada vez?</label>
+        <p class="diag-ayuda" id="diag-duracion-ayuda">Sumá el tiempo de todos los que intervienen. Si son dos personas veinte minutos cada una, son cuarenta minutos. No cuentes las esperas.</p>
+        <select class="diag-select" id="diag-duracion" aria-describedby="diag-duracion-ayuda">
+          <option value="menos-10">Menos de 10 minutos</option>
+          <option value="10-30">Entre 10 y 30 minutos</option>
+          <option value="30-60">Entre 30 minutos y 1 hora</option>
+          <option value="60-120" selected>Entre 1 y 2 horas</option>
+          <option value="120-240">Entre 2 y 4 horas</option>
+          <option value="mas-240">Más de 4 horas</option>
+        </select>
       </div>
-      <div style="border-top:1px solid var(--border);padding-top:24px;display:grid;grid-template-columns:1fr 1fr;gap:20px">
-        <div>
-          <p style="margin:0;font-size:36px;font-weight:900;letter-spacing:-0.02em;color:var(--accent)"><span id="calc-horas-mes">26</span> h</p>
-          <p style="margin:4px 0 0;font-size:13.5px;color:var(--muted)">recuperadas por mes</p>
+
+      <fieldset class="diag-campo">
+        <legend class="diag-campo-label">¿Qué tan parecido es cada vez?</legend>
+        <p class="diag-ayuda" id="diag-estabilidad-ayuda">Es lo que más define cuánto se puede automatizar: un proceso que cambia todo el tiempo necesita más criterio humano.</p>
+        <div class="diag-opts">
+          <input type="radio" class="diag-opt-input" id="diag-est-igual" name="diag-estabilidad" value="igual" aria-describedby="diag-estabilidad-ayuda">
+          <label class="diag-opt" for="diag-est-igual">Siempre igual</label>
+          <input type="radio" class="diag-opt-input" id="diag-est-casi" name="diag-estabilidad" value="casi" checked aria-describedby="diag-estabilidad-ayuda">
+          <label class="diag-opt" for="diag-est-casi">Casi siempre igual</label>
+          <input type="radio" class="diag-opt-input" id="diag-est-cambia" name="diag-estabilidad" value="cambia" aria-describedby="diag-estabilidad-ayuda">
+          <label class="diag-opt" for="diag-est-cambia">Cambia bastante</label>
         </div>
-        <div>
-          <p style="margin:0;font-size:36px;font-weight:900;letter-spacing:-0.02em">US$ <span id="calc-ahorro">520</span></p>
-          <p style="margin:4px 0 0;font-size:13.5px;color:var(--muted)">valor estimado por mes</p>
+      </fieldset>
+
+      <fieldset class="diag-campo">
+        <legend class="diag-campo-label">¿Con qué expectativa querés mirarlo?</legend>
+        <p class="diag-ayuda" id="diag-escenario-ayuda">Arranca en conservador a propósito.</p>
+        <div class="diag-opts">
+          <input type="radio" class="diag-opt-input" id="diag-esc-cons" name="diag-escenario" value="conservador" checked aria-describedby="diag-escenario-ayuda">
+          <label class="diag-opt" for="diag-esc-cons">Conservador</label>
+          <input type="radio" class="diag-opt-input" id="diag-esc-base" name="diag-escenario" value="base" aria-describedby="diag-escenario-ayuda">
+          <label class="diag-opt" for="diag-esc-base">Base</label>
+          <input type="radio" class="diag-opt-input" id="diag-esc-amb" name="diag-escenario" value="ambicioso" aria-describedby="diag-escenario-ayuda">
+          <label class="diag-opt" for="diag-esc-amb">Ambicioso</label>
         </div>
+      </fieldset>
+    </form>
+
+    <div class="diag-resultado" id="diag-resultado">
+      <!-- Solo los resultados calculados van en la live region. El input de
+           costo (mas abajo) NO: si estuviera adentro, cada tecla re-anunciaria
+           el panel entero. -->
+      <div class="diag-live" aria-live="polite" aria-atomic="true">
+        <p class="meta-pill diag-nivel" id="diag-nivel">Oportunidad media</p>
+
+        <div class="diag-cifra">
+          <span class="diag-cifra-rot">Este proceso consume hoy</span>
+          <p class="diag-hoy"><span id="diag-carga">0</span> h</p>
+          <span class="diag-sub">al mes</span>
+        </div>
+
+        <div class="diag-cifra">
+          <span class="diag-cifra-rot">Se podría recuperar</span>
+          <p class="diag-recup" id="diag-rango">0 a 0 h</p>
+          <p class="diag-anual" id="diag-anual">Cerca de 0 a 0 horas al año.</p>
+        </div>
+
+        <p class="diag-frase" id="diag-frase"></p>
+        <p class="diag-nota" id="diag-nota"></p>
       </div>
-      <p style="margin:24px 0 0;font-size:12.5px;color:var(--muted)">Estimación orientativa. No calcula el retorno de la inversión ni contempla los costos de implementación. La primera llamada es gratis; el diagnóstico a fondo es pago y se descuenta de la implementación.</p>
+
+      <a class="btn-primary diag-cta" id="diag-cta" href="https://wa.me/59899508432" target="_blank" rel="noopener" data-cta="diagnostico">Quiero revisar este proceso</a>
+      <p class="diag-microcopy">La primera llamada es gratis. Si aparece una oportunidad concreta, el diagnóstico a fondo es pago y se descuenta de la implementación.</p>
+
+      <details class="diag-eco" id="diag-eco">
+        <summary>Ver impacto económico (opcional)</summary>
+        <label class="diag-campo-label" for="diag-costo">¿Cuánto le cuesta a la empresa una hora de esa persona? (US$)</label>
+        <p class="diag-ayuda">Sueldo bruto más cargas, dividido por las horas trabajadas. No es la tarifa que le facturás a un cliente. Si no lo tenés a mano, dejalo vacío.</p>
+        <input class="diag-num" id="diag-costo" type="number" inputmode="decimal" min="1" max="500" step="1" placeholder="Por ejemplo, 15">
+        <div class="diag-eco-out" id="diag-eco-out"></div>
+        <p class="diag-eco-nota">Es el valor del tiempo, no un ahorro ni un retorno. No descuenta lo que cuesta implementar la automatización, ni sostenerla, ni el tiempo que el equipo tarda en adoptarla.</p>
+      </details>
     </div>
   </div>
+
+  <details class="diag-metodo" id="diag-metodo">
+    <summary>Cómo calculamos esto</summary>
+    <div class="diag-metodo-body">
+      <p>Es una estimación gruesa, hecha para ordenar una conversación. No reemplaza un relevamiento.</p>
+      <h4>Cómo llegamos a las horas</h4>
+      <ul>
+        <li>Multiplicamos cuántas veces por mes corre el proceso por cuánto lleva cada vuelta.</li>
+        <li>Tomamos meses de 4,3 semanas y de 21 días hábiles. "Varias veces por día" lo contamos como 3.</li>
+        <li>No descontamos licencias ni feriados, así que la carga puede quedar algo por encima de la real.</li>
+        <li>Cada opción de duración usa un valor del medio de su rango. "Entre 1 y 2 horas" son 90 minutos.</li>
+      </ul>
+      <h4>De dónde sale el rango recuperable</h4>
+      <ul>
+        <li>Son bandas que usamos como punto de partida, no promedios de mercado: 20% a 35% en conservador, 35% a 55% en base, 55% a 70% en ambicioso.</li>
+        <li>Un proceso siempre igual sube esa banda un 15%. Uno que cambia bastante la baja un 30%.</li>
+        <li>Nunca mostramos más del 75%: siempre queda trabajo humano de excepciones y supervisión.</li>
+        <li>Las horas recuperables ya vienen netas de esa supervisión. No hay que descontarla de nuevo.</li>
+        <li>El tiempo que se libera vuelve fragmentado, en ratos cortos a lo largo del mes. Sirve, pero no equivale a jornadas libres.</li>
+      </ul>
+      <h4>De dónde sale el nivel de oportunidad</h4>
+      <ul>
+        <li>Miramos cuatro señales: cuántas horas son, cada cuánto pasa, qué tan parecido es cada vez y qué tan basado en reglas es ese tipo de proceso. Es la primera lectura que haríamos nosotros, no un modelo.</li>
+        <li>El escenario que elijas no cambia el nivel.</li>
+      </ul>
+      <h4>Qué no calcula esto</h4>
+      <ul>
+        <li>No calcula el retorno de la inversión. No incluye lo que cuesta implementar, mantener ni adoptar la automatización.</li>
+        <li>Los números que dan son tuyos: no guardamos nada de lo que elegís acá.</li>
+      </ul>
+    </div>
+  </details>
 </section>
 
 <!-- FILOSOFIA -->
-<section style="border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--surface)">
+<section class="surface-band">
   <div class="scroll-anim fade-up" style="max-width:840px;margin:0 auto;padding:110px 28px;text-align:center">
     <h2 style="margin:0 0 24px;font-size:clamp(28px,3.4vw,42px);font-weight:800;letter-spacing:-0.02em;line-height:1.15;text-wrap:balance">La IA no reemplaza a tu equipo. Se ocupa del trabajo que no debería hacer<span style="color:var(--cta)">.</span></h2>
     <p style="margin:0;font-size:18px;line-height:1.65;color:var(--muted);text-wrap:pretty">Mientras tu empresa crece, los procesos no deberían depender de más personas, sino de mejores sistemas. Diseñamos sistemas que hacen que tu empresa funcione mejor. La IA es el medio, no el producto.</p>
