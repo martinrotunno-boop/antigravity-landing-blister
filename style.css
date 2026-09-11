@@ -76,7 +76,7 @@
   --bg: #F4F3F0;
   --surface: #FFFFFF;
   --border: #E2E3E5;
-  --text: #141416;
+  --text: #2B2926;
   --muted: #5D6167;
   /* Sobre fondo claro el tono del manual (#BB4E00) ya da 4.50:1 (AA). */
   --accent: #BB4E00;
@@ -106,7 +106,7 @@ body {
   color: var(--text);
   min-height: 100vh;
   transition: background-color 0.4s ease, color 0.4s ease;
-  padding-top: 68px; /* Compensación para la barra de navegación fija */
+  padding-top: 70px; /* Barra pegada al borde, ~68px de alto + 1px de borde */
 }
 
 a {
@@ -184,16 +184,33 @@ a:hover {
 
 /* Base Components */
 .nav-bar {
+  /* Vidrio pegado al borde (beta 2026-09-11, revertido el despegue del
+     2026-09-11 temprano: no gustó separada del borde). Sigue ancho completo
+     y pegada arriba, pero el filo inferior queda redondeado -no es una
+     franja recta- y baja el fondo a --surface (no --bg) para que el blur se
+     note mas: mismo lenguaje que .stack-section y .hero-system-card, "el
+     vidrio como material, no el glassmorphism de gradientes neon" del
+     manual. El filo interior claro arriba (inset highlight) es lo que la lee
+     como vidrio con volumen y no como un panel semitransparente plano. */
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
+  right: 0;
   z-index: 50;
-  background: color-mix(in srgb, var(--bg) 88%, transparent);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
-  box-shadow: var(--shadow-sm);
+  border-radius: 0 0 20px 20px;
+  /* 82% opaca y saturate(35%), no 55%/140% (probado el 2026-09-11: con el
+     bloque solido naranja de #casos -.accent-card- pasando por detras, esa
+     combinacion se veia como un manchon naranja arriba de la barra al
+     scrollear. Bajar solo la saturacion no alcanzaba: el 45% de peso que le
+     quedaba al fondo desenfocado seguia siendo #FF9100 puro. Subir la opacidad
+     achica ese peso; bajar mas la saturacion apaga lo que queda). Menos
+     "vidrio de color", mas esmerilado. */
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
+  backdrop-filter: blur(20px) saturate(35%);
+  -webkit-backdrop-filter: blur(20px) saturate(35%);
+  border: 1px solid color-mix(in srgb, var(--border) 55%, transparent);
+  border-top: none;
+  box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255, 255, 255, 0.18);
   transition: background 0.4s ease, border-color 0.4s ease;
 }
 
@@ -504,13 +521,16 @@ a:hover {
 }
 
 .testimonial-logo {
+  /* Fondo blanco removido del PNG el 2026-09-11 (quedaba una caja blanca
+     detras del isologo). Ahora es un circulo real: object-fit:cover para que
+     llene el circulo y border-radius:50% en vez del cuadrado redondeado de
+     12px, sin fondo ni padding propios -toma el color de la superficie que
+     tenga detras, tarjeta clara u oscura-. */
   flex-shrink: 0;
   width: 56px;
   height: 56px;
-  border-radius: 12px;
-  background: #fff;
-  padding: 4px;
-  object-fit: contain;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .testimonial-who {
@@ -555,8 +575,13 @@ a:hover {
 }
 
 .premium-card:hover {
+  /* Sombra propia y no --shadow-md (beta 2026-09-11): esa variable sigue
+     siendo el valor tenue del tema claro, y ahora la tarjeta es vidrio oscuro
+     en los dos temas, asi que el hover tiene que profundizar la MISMA sombra
+     oscura, no reemplazarla por una debil. */
   border-color: color-mix(in srgb, var(--border) 50%, var(--text));
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 28px 56px -18px rgba(0, 0, 0, 0.55),
+              inset 0 1px 0 rgba(255, 255, 255, 0.14);
   transform: translateY(-4px);
 }
 
@@ -570,12 +595,12 @@ a:hover {
 }
 
 .hero-system-card:hover {
-  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.25);
+  /* Un solo valor para los dos temas (antes claro tenia una sombra mas
+     debil): la tarjeta es vidrio oscuro fijo, el hover la profundiza igual
+     en cualquier tema. */
+  box-shadow: 0 28px 56px -18px rgba(0, 0, 0, 0.55),
+              inset 0 1px 0 rgba(255, 255, 255, 0.14);
   border-color: color-mix(in srgb, var(--border) 50%, var(--text));
-}
-
-:root[data-theme="claro"] .hero-system-card:hover {
-  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.1);
 }
 
 .faq-btn {
@@ -622,12 +647,12 @@ a:hover {
 /* Inputs */
 .form-input {
   background: #FFFFFF;
-  border: 1px solid #141416;
+  border: 1px solid #2B2926;
   border-radius: 12px;
   padding: 16px 18px;
   font-family: inherit;
   font-size: 15px;
-  color: #141416;
+  color: #2B2926;
   width: 100%;
   box-sizing: border-box;
   transition: all 0.2s ease;
@@ -1350,15 +1375,19 @@ body > * { position: relative; z-index: 1; }
   display: block;
   border-radius: 50%;
   filter: blur(110px);
-  /* Bajo a proposito: mas arriba de ~0.4 el aura naranja lava el titular del
-     hero y le come contraste al texto blanco. */
+  /* Bajo a proposito: mas arriba de ~0.4 el aura lava el titular del hero y le
+     come contraste al texto. */
   opacity: 0.38;
 }
 
 .hero-aura span:nth-child(1) {
   width: 460px; height: 460px;
   top: -160px; left: -120px;
-  background: color-mix(in srgb, var(--accent) 55%, transparent);
+  /* Aluminio bien claro, NO naranja. El aura calida ensuciaba la pulcritud del
+     hero (beta 2026-09-10). Ahora las dos auras son grises frios de distinta
+     temperatura: esta mas clara, la otra (#78808F) mas plomo. Solo dan
+     profundidad, no color de marca. */
+  background: color-mix(in srgb, #A3A7AD 45%, transparent);
   animation: b-drift-a 22s ease-in-out infinite alternate;
 }
 
@@ -1412,6 +1441,38 @@ body > * { position: relative; z-index: 1; }
   mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   mask-composite: exclude;
   pointer-events: none;
+}
+
+/* --- 3b. Vidrio templado oscuro para toda superficie elevada ------------
+   Pedido explicito (beta 2026-09-11): la tarjeta del hero y "las que se le
+   parezcan" -tarjetas de features, FAQ, panel de chat, banner de cookies-
+   pasan a vidrio oscuro fijo, en los DOS temas, no solo en oscuro. Redefinir
+   --text/--muted/--border/--accent/--soft ADENTRO del selector alcanza: son
+   custom properties, asi que cualquier hijo que use var(--text) etc. hereda
+   el valor oscuro sin tocar una regla mas (ni el markup). Gana por ser la
+   declaracion mas cercana al elemento, sin importar el orden en el archivo.
+   Fuera de esta lista, a proposito:
+   - .accent-card: es el bloque solido naranja (ver su comentario, linea
+     ~344), no una superficie de vidrio.
+   - .cta-card: su fondo es un inline style en index.html (invierte --text/
+     --bg segun tema), se resuelve ahi para no pelear con la cascada. */
+.hero-system-card,
+.card,
+.chat-panel,
+.cookie-banner {
+  --text: #F4F3F0;
+  --muted: #A3A7AD;
+  --border: #2F3035;
+  --accent: #CF7030;
+  --accent-rgb: 207 112 48;
+  --soft: #232428;
+  background: color-mix(in srgb, #141416 60%, transparent);
+  backdrop-filter: blur(20px) saturate(70%);
+  -webkit-backdrop-filter: blur(20px) saturate(70%);
+  border: 1px solid color-mix(in srgb, #F4F3F0 10%, transparent);
+  box-shadow: 0 20px 44px -16px rgba(0, 0, 0, 0.5),
+              inset 0 1px 0 rgba(255, 255, 255, 0.10);
+  color: var(--text);
 }
 
 /* ======================================================================
