@@ -27,5 +27,14 @@ window.ENV = {
   // vacío, los CTA dicen "Hablemos por WhatsApp" y van al chat.
   // Si algún día se pega una URL acá, script.js le cambia destino Y texto a los
   // botones (pasan a decir "Agendar una llamada"). No hay que tocar el HTML.
-  CALENDAR_URL: ""
+  CALENDAR_URL: "",
+
+  // Meta Pixel (Business Portfolio `Blister.cloud`, id 405048727157322).
+  // Solo el ID numerico, sin comillas raras ni "fbq".
+  // VACIO = pixel apagado: `cargarPixel()` en script.js no inserta nada y
+  // `trackPixel()` no hace nada. Asi el codigo se puede desplegar antes de
+  // que el pixel exista, y prenderlo despues es cambiar esta sola linea.
+  // OJO: igual que GA4, solo carga si el visitante ACEPTA el banner de
+  // cookies (Ley 18.331). No moverlo a index.html: ver script.js, COOKIES.
+  META_PIXEL_ID: "1345774737349513"
 };

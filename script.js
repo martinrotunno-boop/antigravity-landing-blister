@@ -34,6 +34,52 @@ document.addEventListener("DOMContentLoaded", () => {
     gtag("event", nombre, params || {});
   };
 
+  // --- META PIXEL (mismo opt-in que GA4, Ley 18.331) ---
+  // El ID vive en config.js (META_PIXEL_ID). Vacio = pixel apagado.
+  //
+  // A diferencia del snippet que da Meta, el stub `fbq` NO va en index.html.
+  // El snippet oficial lo define siempre y encola en `fbq.queue`; cuando mas
+  // tarde carga fbevents.js, esa cola se vacia y manda a Meta lo ocurrido
+  // ANTES del consentimiento — el mismo agujero que ya se tapo para GA4 mas
+  // arriba. Aca `fbq` no existe hasta que el visitante acepta.
+  //
+  // Tampoco va el <noscript><img> del snippet oficial: ese pide el pixel al
+  // servidor de Meta apenas se pinta el HTML, sin pasar por ningun consentimiento.
+  const META_PIXEL_ID = (window.ENV && window.ENV.META_PIXEL_ID) || "";
+
+  const cargarPixel = () => {
+    if (!META_PIXEL_ID) return;
+    if (document.getElementById("fb-pixel-script")) return;
+
+    // Stub de Meta, recortado: cola propia que fbevents.js vacia al cargar.
+    const n = (window.fbq = function () {
+      n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
+    });
+    if (!window._fbq) window._fbq = n;
+    n.push = n;
+    n.loaded = true;
+    n.version = "2.0";
+    n.queue = [];
+
+    const s = document.createElement("script");
+    s.id = "fb-pixel-script";
+    s.async = true;
+    s.src = "https://connect.facebook.net/en_US/fbevents.js";
+    document.head.appendChild(s);
+
+    fbq("init", META_PIXEL_ID);
+    fbq("track", "PageView");
+  };
+
+  // Gemelo de trackEvent. Mismo guard: mira si el script llego a insertarse,
+  // no si `fbq` existe. Los nombres son los eventos ESTANDAR de Meta (lista
+  // cerrada de 17): "Lead", "Contact". Los micro-eventos de la calculadora no
+  // tienen equivalente estandar y no se espejan a proposito.
+  const trackPixel = (nombre, params) => {
+    if (!document.getElementById("fb-pixel-script")) return;
+    fbq("track", nombre, params || {});
+  };
+
   // El banner es un diálogo modal (aria-modal, y el ::before atenúa y bloquea
   // el resto de la página). Como es modal, hay que manejar el foco: llevarlo
   // adentro al abrir, atraparlo con Tab, y devolverlo al abrir/cerrar.
@@ -104,6 +150,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (consentimientoGuardado === "accepted") {
     cargarGA4();
+    cargarPixel();
   } else if (consentimientoGuardado !== "rejected") {
     mostrarCookieBanner();
   }
@@ -113,6 +160,7 @@ document.addEventListener("DOMContentLoaded", () => {
       try { localStorage.setItem(COOKIE_CONSENT_KEY, "accepted"); } catch (e) {}
       ocultarCookieBanner();
       cargarGA4();
+      cargarPixel();
     });
   }
   if (cookieReject) {
@@ -745,6 +793,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // GA4: lead confirmado. Va después de `response.ok`, así cuenta leads
         // que entraron al CRM y no intentos que murieron en Turnstile o en red.
         trackEvent("generate_lead", { lead_source: "contact_form" });
+        trackPixel("Lead", { content_name: "contact_form" });
         
       } catch (error) {
         // Acá cae solo lo que ni siquiera llegó a tener respuesta: sin red, DNS
@@ -951,6 +1000,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!chatStartTracked) {
         chatStartTracked = true;
         trackEvent("chat_start", { chat_source: "site_widget" });
+        trackPixel("Contact", { content_name: "chat_widget" });
       }
 
       chatInput.value = "";
@@ -1045,6 +1095,7 @@ document.addEventListener("DOMContentLoaded", () => {
     link.addEventListener("click", () => {
       const bloque = link.closest("section[id], header[id], footer[id]");
       trackEvent("whatsapp_click", { link_location: bloque ? bloque.id : "nav" });
+      trackPixel("Contact", { content_name: "whatsapp", content_category: bloque ? bloque.id : "nav" });
     });
   });
 
