@@ -368,161 +368,104 @@
   <p class="testimonial-context scroll-anim fade-up">Una membresía de contenido con entregas dos veces por semana. Cada alumna está en un punto distinto del programa: el sistema le manda la entrega que le sigue, lleva la cuenta y, si falta un material, no envía nada y avisa. En producción desde agosto de 2026, sin una entrega equivocada ni salteada.</p>
 </section>
 
-<!-- DIAGNOSTICO DE OPORTUNIDAD -->
-<!-- 2026-09-03: reemplaza al "estimador" de sliders. Es un diagnostico:
-     parte de un proceso concreto y estima su carga operativa; el valor en
-     plata es secundario y vive detras de un <details>. Toda la logica de
-     calculo esta en la funcion pura estimar() de script.js.
-     NO usa .accent-card (hay una sola por pagina, la tiene #casos) ni
-     .premium-card (su hover lift + listener de pointermove sobre un panel
-     con controles adentro es hostil). El panel usa .card a secas. -->
-<section id="calculadora" class="section-container">
+<!-- DESPUES DE LA ENTREGA (2026-09-19) -->
+<!-- Ocupa el lugar que dejo el diagnostico de oportunidad. Sube al cuerpo de la
+     pagina la objecion que estaba enterrada en el FAQ ("que pasa con el
+     mantenimiento"): quedar colgado con un flujo roto es lo que mata la venta
+     de automatizacion cuando el proveedor es chico. Va despues de #evidencia a
+     proposito, con la prueba de Gabriela todavia fresca y antes del CTA.
+     La cuarta linea de la columna izquierda ("se limpia solo: las corridas
+     viejas no se acumulan") SALIO el 2026-09-19: Martin confirmo que las
+     corridas de los clientes no quedan en su instancia, asi que el Barrendero
+     no las poda y la afirmacion no se sostiene. No volver a ponerla.
+     El pie y la linea de las suscripciones salen de la pauta comercial del
+     2026-09-19 (Blister_Planificacion_Precios_Alcance.docx): la solucion se
+     configura en la cuenta de n8n Cloud del cliente, con credenciales y APIs a
+     su nombre, y el cliente contrata y paga n8n Cloud, IA y WhatsApp aparte.
+     Usa .card a secas: .accent-card hay una sola por pagina (#casos) y
+     .premium-card hace lift en hover, hostil para un panel de lectura. -->
+<section id="post-entrega" class="section-container">
   <div class="scroll-anim fade-up">
-    <p class="label-text" style="margin:0 0 14px;">Diagnóstico de oportunidad</p>
-    <h2 style="margin:0 0 16px;font-size:clamp(30px,3.6vw,44px);font-weight:800;letter-spacing:-0.02em;text-wrap:balance">¿Cuánto trabajo manual hay detrás de este proceso?</h2>
-    <p style="margin:0;font-size:17px;line-height:1.6;color:var(--muted);max-width:620px;text-wrap:pretty">Elegí un proceso y estimá cuánto tiempo operativo consume hoy. Sin promesas infladas: son rangos, no una cotización.</p>
+    <p class="label-text" style="margin:0 0 14px;">Después de la entrega</p>
+    <h2 style="margin:0 0 48px;font-size:clamp(30px,3.6vw,44px);font-weight:800;letter-spacing:-0.02em;max-width:680px;text-wrap:balance">Quién se ocupa de qué, una vez que corre<span style="color:var(--cta)">.</span></h2>
   </div>
-
-  <div class="b-cols diag-grid" style="grid-template-columns:1fr 1fr;align-items:start;margin-top:40px">
-
-    <form class="card diag-panel" id="diag-form" novalidate>
-      <div class="diag-campo">
-        <label class="diag-campo-label" for="diag-proceso">¿Qué proceso querés mirar?</label>
-        <p class="diag-ayuda" id="diag-proceso-ayuda">Elegí el que más se parezca al tuyo. No hace falta que sea exacto.</p>
-        <select class="diag-select" id="diag-proceso" aria-describedby="diag-proceso-ayuda">
-          <option value="datos">Carga y traspaso de datos entre sistemas</option>
-          <option value="carga-manual">Carga manual de información</option>
-          <option value="recordatorios">Envío de recordatorios y avisos</option>
-          <option value="reportes">Preparación de reportes</option>
-          <option value="conciliacion">Conciliación de información entre fuentes</option>
-          <option value="consultas">Clasificación de consultas que entran</option>
-          <option value="seguimiento">Seguimiento de clientes y oportunidades</option>
-          <option value="aprobaciones">Coordinación y aprobaciones internas</option>
-          <option value="otro">Otro proceso repetitivo</option>
-        </select>
-      </div>
-
-      <div class="diag-campo">
-        <label class="diag-campo-label" for="diag-frecuencia">¿Cada cuánto pasa?</label>
-        <p class="diag-ayuda" id="diag-frecuencia-ayuda">Cuántas veces se ejecuta el proceso completo.</p>
-        <select class="diag-select" id="diag-frecuencia" aria-describedby="diag-frecuencia-ayuda">
-          <option value="varias-dia">Varias veces por día</option>
-          <option value="dia" selected>Todos los días</option>
-          <option value="algunos-dias">Algunos días de la semana</option>
-          <option value="semana">Una vez por semana</option>
-          <option value="quincena">Cada quince días</option>
-          <option value="mes">Una vez por mes</option>
-        </select>
-      </div>
-
-      <div class="diag-campo">
-        <label class="diag-campo-label" for="diag-duracion">¿Cuánto lleva cada vez?</label>
-        <p class="diag-ayuda" id="diag-duracion-ayuda">Sumá el tiempo de todos los que intervienen. Si son dos personas veinte minutos cada una, son cuarenta minutos. No cuentes las esperas.</p>
-        <select class="diag-select" id="diag-duracion" aria-describedby="diag-duracion-ayuda">
-          <option value="menos-10">Menos de 10 minutos</option>
-          <option value="10-30">Entre 10 y 30 minutos</option>
-          <option value="30-60">Entre 30 minutos y 1 hora</option>
-          <option value="60-120" selected>Entre 1 y 2 horas</option>
-          <option value="120-240">Entre 2 y 4 horas</option>
-          <option value="mas-240">Más de 4 horas</option>
-        </select>
-      </div>
-
-      <fieldset class="diag-campo">
-        <legend class="diag-campo-label">¿Qué tan parecido es cada vez?</legend>
-        <p class="diag-ayuda" id="diag-estabilidad-ayuda">Es lo que más define cuánto se puede automatizar: un proceso que cambia todo el tiempo necesita más criterio humano.</p>
-        <div class="diag-opts">
-          <input type="radio" class="diag-opt-input" id="diag-est-igual" name="diag-estabilidad" value="igual" aria-describedby="diag-estabilidad-ayuda">
-          <label class="diag-opt" for="diag-est-igual">Siempre igual</label>
-          <input type="radio" class="diag-opt-input" id="diag-est-casi" name="diag-estabilidad" value="casi" checked aria-describedby="diag-estabilidad-ayuda">
-          <label class="diag-opt" for="diag-est-casi">Casi siempre igual</label>
-          <input type="radio" class="diag-opt-input" id="diag-est-cambia" name="diag-estabilidad" value="cambia" aria-describedby="diag-estabilidad-ayuda">
-          <label class="diag-opt" for="diag-est-cambia">Cambia bastante</label>
-        </div>
-      </fieldset>
-
-      <fieldset class="diag-campo">
-        <legend class="diag-campo-label">¿Con qué expectativa querés mirarlo?</legend>
-        <p class="diag-ayuda" id="diag-escenario-ayuda">Arranca en conservador a propósito.</p>
-        <div class="diag-opts">
-          <input type="radio" class="diag-opt-input" id="diag-esc-cons" name="diag-escenario" value="conservador" checked aria-describedby="diag-escenario-ayuda">
-          <label class="diag-opt" for="diag-esc-cons">Conservador</label>
-          <input type="radio" class="diag-opt-input" id="diag-esc-base" name="diag-escenario" value="base" aria-describedby="diag-escenario-ayuda">
-          <label class="diag-opt" for="diag-esc-base">Base</label>
-          <input type="radio" class="diag-opt-input" id="diag-esc-amb" name="diag-escenario" value="ambicioso" aria-describedby="diag-escenario-ayuda">
-          <label class="diag-opt" for="diag-esc-amb">Ambicioso</label>
-        </div>
-      </fieldset>
-    </form>
-
-    <div class="diag-resultado" id="diag-resultado">
-      <!-- Solo los resultados calculados van en la live region. El input de
-           costo (mas abajo) NO: si estuviera adentro, cada tecla re-anunciaria
-           el panel entero. -->
-      <div class="diag-live" aria-live="polite" aria-atomic="true">
-        <p class="meta-pill diag-nivel" id="diag-nivel">Oportunidad media</p>
-
-        <div class="diag-cifra">
-          <span class="diag-cifra-rot">Este proceso consume hoy</span>
-          <p class="diag-hoy"><span id="diag-carga">0</span> h</p>
-          <span class="diag-sub">al mes</span>
-        </div>
-
-        <div class="diag-cifra">
-          <span class="diag-cifra-rot">Se podría recuperar</span>
-          <p class="diag-recup" id="diag-rango">0 a 0 h</p>
-          <p class="diag-anual" id="diag-anual">Cerca de 0 a 0 horas al año.</p>
-        </div>
-
-        <p class="diag-frase" id="diag-frase"></p>
-        <p class="diag-nota" id="diag-nota"></p>
-      </div>
-
-      <a class="btn-primary diag-cta" id="diag-cta" href="https://wa.me/59899508432" target="_blank" rel="noopener" data-cta="diagnostico">Quiero revisar este proceso</a>
-      <p class="diag-microcopy">La primera llamada es gratis. Si aparece una oportunidad concreta, el diagnóstico a fondo es pago y se descuenta de la implementación.</p>
-
-      <details class="diag-eco" id="diag-eco">
-        <summary>Ver impacto económico (opcional)</summary>
-        <label class="diag-campo-label" for="diag-costo">¿Cuánto le cuesta a la empresa una hora de esa persona? (US$)</label>
-        <p class="diag-ayuda">Sueldo bruto más cargas, dividido por las horas trabajadas. No es la tarifa que le facturás a un cliente. Si no lo tenés a mano, dejalo vacío.</p>
-        <input class="diag-num" id="diag-costo" type="number" inputmode="decimal" min="1" max="500" step="1" placeholder="Por ejemplo, 15">
-        <div class="diag-eco-out" id="diag-eco-out"></div>
-        <p class="diag-eco-nota">Es el valor del tiempo, no un ahorro ni un retorno. No descuenta lo que cuesta implementar la automatización, ni sostenerla, ni el tiempo que el equipo tarda en adoptarla.</p>
-      </details>
-    </div>
-  </div>
-
-  <details class="diag-metodo" id="diag-metodo">
-    <summary>Cómo calculamos esto</summary>
-    <div class="diag-metodo-body">
-      <p>Es una estimación gruesa, hecha para ordenar una conversación. No reemplaza un relevamiento.</p>
-      <h4>Cómo llegamos a las horas</h4>
-      <ul>
-        <li>Multiplicamos cuántas veces por mes corre el proceso por cuánto lleva cada vuelta.</li>
-        <li>Tomamos meses de 4,3 semanas y de 21 días hábiles. "Varias veces por día" lo contamos como 3.</li>
-        <li>No descontamos licencias ni feriados, así que la carga puede quedar algo por encima de la real.</li>
-        <li>Cada opción de duración usa un valor del medio de su rango. "Entre 1 y 2 horas" son 90 minutos.</li>
-      </ul>
-      <h4>De dónde sale el rango recuperable</h4>
-      <ul>
-        <li>Son bandas que usamos como punto de partida, no promedios de mercado: 20% a 35% en conservador, 35% a 55% en base, 55% a 70% en ambicioso.</li>
-        <li>Un proceso siempre igual sube esa banda un 15%. Uno que cambia bastante la baja un 30%.</li>
-        <li>Nunca mostramos más del 75%: siempre queda trabajo humano de excepciones y supervisión.</li>
-        <li>Las horas recuperables ya vienen netas de esa supervisión. No hay que descontarla de nuevo.</li>
-        <li>El tiempo que se libera vuelve fragmentado, en ratos cortos a lo largo del mes. Sirve, pero no equivale a jornadas libres.</li>
-      </ul>
-      <h4>De dónde sale el nivel de oportunidad</h4>
-      <ul>
-        <li>Miramos cuatro señales: cuántas horas son, cada cuánto pasa, qué tan parecido es cada vez y qué tan basado en reglas es ese tipo de proceso. Es la primera lectura que haríamos nosotros, no un modelo.</li>
-        <li>El escenario que elijas no cambia el nivel.</li>
-      </ul>
-      <h4>Qué no calcula esto</h4>
-      <ul>
-        <li>No calcula el retorno de la inversión. No incluye lo que cuesta implementar, mantener ni adoptar la automatización.</li>
-        <li>Los números que dan son tuyos: no guardamos nada de lo que elegís acá.</li>
+  <div class="post-split scroll-anim fade-up">
+    <div class="post-col">
+      <h3 class="post-col-titulo">Lo hace el sistema</h3>
+      <ul class="post-lista">
+        <li><span class="post-marca" aria-hidden="true">&#8594;</span><span>Corre en su horario, sin que nadie lo empuje</span></li>
+        <li><span class="post-marca" aria-hidden="true">&#8594;</span><span>Frena y avisa cuando algo no cierra</span></li>
+        <li><span class="post-marca" aria-hidden="true">&#8594;</span><span>Deja registro de qué pasó y cuándo</span></li>
       </ul>
     </div>
-  </details>
+    <div class="post-col">
+      <h3 class="post-col-titulo">Te queda a vos</h3>
+      <ul class="post-lista">
+        <li><span class="post-marca" aria-hidden="true">&#183;</span><span>Decidir los casos raros que el sistema aparta</span></li>
+        <li><span class="post-marca" aria-hidden="true">&#183;</span><span>Avisarnos si cambia una regla del negocio</span></li>
+        <li><span class="post-marca" aria-hidden="true">&#183;</span><span>Pagar las suscripciones que usa el sistema</span></li>
+        <li><span class="post-marca" aria-hidden="true">&#183;</span><span>Nada más</span></li>
+      </ul>
+    </div>
+  </div>
+  <p class="post-pie scroll-anim fade-up">El sistema vive en tu cuenta de n8n Cloud, con las credenciales y las APIs a tu nombre. No queda atado a nosotros.</p>
+</section>
+
+<!-- OFERTA Y PRECIO (2026-09-19) -->
+<!-- Fuente: pauta comercial Blister_Planificacion_Precios_Alcance.docx del
+     2026-09-19. Reemplaza a los tres niveles de referencia (USD 400-500 / 600 /
+     900-1.500+) para ESTA oferta; no toca el precio de EOS ni otros proyectos.
+     La pauta exige mostrar JUNTOS implementacion, mantenimiento, costos
+     externos y permanencia: por eso los cuatro estan en el mismo bloque y no
+     repartidos por la pagina.
+     PROHIBIDO por la misma pauta: anunciar tres procesos por USD 247,
+     automatizaciones ilimitadas, soporte humano 24/7, los escalones de USD 89
+     y 119 (todavia no tienen prestaciones definidas) y la recepcion automatica
+     de consultas 24 h hasta verificar que el canal este operativo. -->
+<section id="precio" class="section-container">
+  <div class="scroll-anim fade-up">
+    <p class="label-text" style="margin:0 0 14px;">Precio</p>
+    <h2 style="margin:0 0 20px;font-size:clamp(30px,3.6vw,44px);font-weight:800;letter-spacing:-0.02em;max-width:680px;text-wrap:balance">Automatizá un proceso de tu negocio<span style="color:var(--cta)">.</span></h2>
+    <p class="oferta-bajada">Configuramos la solución en tu cuenta de n8n Cloud, conectamos las herramientas acordadas y la dejamos funcionando. Antes de empezar definimos qué incluye y cómo comprobamos que cumple el resultado.</p>
+  </div>
+  <div class="oferta-grid scroll-anim fade-up">
+    <div class="oferta-precio">
+      <p class="oferta-rot">Implementación</p>
+      <p class="oferta-cifra">USD 247</p>
+      <p class="oferta-detalle">Pago único. La mitad al empezar y la mitad al entrar en producción.</p>
+    </div>
+    <div class="oferta-precio">
+      <p class="oferta-rot">Mantenimiento</p>
+      <p class="oferta-cifra">USD 49 <span class="oferta-unidad">al mes</span></p>
+      <p class="oferta-detalle">Desde la puesta en producción, con tres meses mínimos. Después cancelás cuando quieras.</p>
+    </div>
+    <div class="oferta-precio oferta-aparte">
+      <p class="oferta-rot">Aparte</p>
+      <p class="oferta-cifra-chica">Lo que consume</p>
+      <p class="oferta-detalle">n8n Cloud, IA, WhatsApp: se contratan a tu nombre y los pagás directo al proveedor.</p>
+    </div>
+  </div>
+  <div class="oferta-incluye scroll-anim fade-up">
+    <div>
+      <h3 class="oferta-col-titulo">La implementación incluye</h3>
+      <ul class="oferta-lista">
+        <li>Relevamiento acotado del proceso</li>
+        <li>Configuración de tu cuenta de n8n Cloud</li>
+        <li>Integraciones y credenciales necesarias</li>
+        <li>Construcción, pruebas y puesta en producción</li>
+      </ul>
+    </div>
+    <div>
+      <h3 class="oferta-col-titulo">El mantenimiento incluye</h3>
+      <ul class="oferta-lista">
+        <li>Monitoreo de lo que quedó andando</li>
+        <li>Detección y manejo de errores</li>
+        <li>Cambios de credenciales</li>
+        <li>Ajustes menores sobre lo acordado</li>
+      </ul>
+    </div>
+  </div>
+  <p class="oferta-pie scroll-anim fade-up">Las funciones nuevas y las ampliaciones se cotizan aparte: una ampliación sencilla sobre lo ya implementado son USD 99, previa evaluación. Los procesos de mayor complejidad llevan su propia cotización. Este es el precio de entrada para los primeros tres clientes: mientras el alcance sea el mismo, lo conservás.</p>
 </section>
 
 <!-- FILOSOFIA -->
@@ -575,10 +518,17 @@
         </div>
       </div>
 
-      <div style="border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+      <div style="border-top:1px solid var(--border)">
         <button class="faq-btn">¿Qué pasa con el mantenimiento?<span class="faq-icon" style="color:var(--muted);font-weight:400;font-size:22px">+</span></button>
         <div class="faq-content">
-          <p class="faq-text">Lo sostenemos nosotros. Monitoreamos el sistema y respondemos según el nivel de soporte acordado. No te dejamos solo con la herramienta.</p>
+          <p class="faq-text">Lo sostenemos nosotros con el abono mensual: monitoreo, manejo de errores, cambios de credenciales y ajustes menores sobre lo implementado. La atención humana es de lunes a viernes, en el horario que acordemos.</p>
+        </div>
+      </div>
+
+      <div style="border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+        <button class="faq-btn">¿Y si más adelante necesito algo nuevo?<span class="faq-icon" style="color:var(--muted);font-weight:400;font-size:22px">+</span></button>
+        <div class="faq-content">
+          <p class="faq-text">Se evalúa y se cotiza antes de hacerlo. Una ampliación sencilla sobre lo que ya está implementado son USD 99; si además cambia lo que hay que mantener, acordamos el abono nuevo antes de tocar nada. Sin mantenimiento activo, las intervenciones puntuales son USD 40 la hora, con estimación y tu autorización primero.</p>
         </div>
       </div>
 
@@ -594,7 +544,7 @@
     <div class="b-cols" style="grid-template-columns:1.1fr 1fr;gap:56px;align-items:start">
       <div>
         <h2 style="margin:0 0 16px;font-size:clamp(30px,3.8vw,46px);font-weight:900;letter-spacing:-0.02em;line-height:1.08;text-wrap:balance">Escalá tu operación, no cuánto trabajás<span style="color:var(--cta)">.</span></h2>
-        <p style="margin:0 0 32px;font-size:17px;line-height:1.55;opacity:.75">Agendá una llamada exploratoria gratis. Vemos dónde se te va el tiempo y, si tiene sentido avanzar, hacemos un diagnóstico a fondo — pago, y se descuenta de la implementación.</p>
+        <p style="margin:0 0 32px;font-size:17px;line-height:1.55;opacity:.75">Agendá una llamada exploratoria gratis. Vemos dónde se te va el tiempo y, si tiene sentido avanzar, armamos la propuesta. Si preferís que vayamos a tu lugar de trabajo a ver el proceso en vivo, la visita son USD 25 por viáticos y tiempo.</p>
         <div style="display:flex;flex-direction:column;gap:10px;font-size:15px;font-weight:500">
           <span style="opacity:.75">→ contacto@blister.cloud</span>
           <span style="opacity:.75">→ WhatsApp: +598 99 508 432</span>

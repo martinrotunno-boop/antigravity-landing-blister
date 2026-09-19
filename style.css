@@ -1730,346 +1730,223 @@ body::after {
   .proceso-titulo { font-size: 20px; }
 }
 
-/* --- 9. Diagnostico de oportunidad (2026-09-03) --------------------- */
-/* Reemplaza al estimador de sliders. Todo prefijado .diag-*; los unicos
-   selectores de elemento (summary, fieldset, legend) van SIEMPRE como
-   descendientes de un .diag-*, para no tocar el FAQ ni el form de #contacto.
-   Colores: todo por tokens. Texto coloreado en --accent, nunca --cta
-   (el naranja brillante cae a ~2:1 sobre fondo claro); --cta solo en
-   bordes, fondos al 12% y sombras de foco. Va al final del archivo a
-   proposito: gana los empates de cascada sin !important. */
+/* --- 9. Despues de la entrega (2026-09-19) ---------------------------- */
+/* Reparto de responsabilidades entre el sistema y el cliente. Ocupa el hueco
+   que dejo el diagnostico de oportunidad. Todo prefijado .post-*; ningun
+   selector de elemento suelto, para no tocar el FAQ ni el form de #contacto.
+   Las dos columnas se apoyan en superficies distintas (--surface a la
+   izquierda, --bg a la derecha) para que el reparto se lea antes que el texto.
+   Va al final del archivo a proposito: gana los empates de cascada sin
+   !important. */
 
-.diag-grid { gap: 32px; }
-
-.diag-panel {
+.post-split {
   display: grid;
-  gap: 22px;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  overflow: hidden;
+  background: var(--surface);
 }
 
-.diag-campo {
-  border: 0;
-  margin: 0;
-  padding: 0;
-  min-inline-size: 0;
+.post-col { padding: 30px 32px; }
+
+.post-col + .post-col {
+  border-left: 1px solid var(--border);
+  background: var(--bg);
 }
 
-.diag-campo-label,
-.diag-campo legend {
-  display: block;
-  font-size: 14.5px;
-  font-weight: 600;
-  color: var(--text);
-  margin-bottom: 4px;
-  padding: 0;
-}
-
-.diag-ayuda {
+.post-col-titulo {
+  margin: 0 0 20px;
+  font-family: var(--mono);
   font-size: 13px;
-  line-height: 1.5;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   color: var(--muted);
-  margin: 0 0 10px;
 }
 
-.diag-select {
-  width: 100%;
-  box-sizing: border-box;
-  background-color: var(--bg);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23A3A7AD' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 14px center;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 11px 38px 11px 14px;
-  font-family: inherit;
-  font-size: 15px;
-  color: var(--text);
-  appearance: none;
-  -webkit-appearance: none;
-  cursor: pointer;
-}
-
-:root[data-theme="claro"] .diag-select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235D6167' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-}
-
-.diag-select:focus-visible,
-.diag-num:focus-visible {
-  outline: none;
-  border-color: var(--cta);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cta) 20%, transparent);
-}
-
-.diag-opts {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.diag-opt-input {
-  position: absolute;
-  opacity: 0;
-  width: 1px;
-  height: 1px;
+.post-lista {
   margin: 0;
-  pointer-events: none;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 14px;
 }
 
-.diag-opt {
-  flex: 1;
-  min-width: 96px;
-  text-align: center;
-  padding: 10px 12px;
+.post-lista li {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 12px;
+  font-size: 15.5px;
+  line-height: 1.5;
+}
+
+.post-marca {
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 13px;
+  padding-top: 2px;
+}
+
+/* La segunda columna es la lista corta a propósito: su marca no compite. */
+.post-col + .post-col .post-marca { color: var(--muted); }
+
+.post-pie {
+  margin: 18px 0 0;
   font-size: 14px;
-  font-weight: 600;
+  line-height: 1.6;
   color: var(--muted);
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  user-select: none;
 }
 
-.diag-opt:hover {
-  color: var(--text);
-  border-color: color-mix(in srgb, var(--border) 50%, var(--text));
+@media (max-width: 900px) {
+  .post-split { grid-template-columns: 1fr; }
+  .post-col + .post-col {
+    border-left: 0;
+    border-top: 1px solid var(--border);
+  }
 }
 
-.diag-opt-input:checked + .diag-opt {
-  color: var(--text);
-  border-color: var(--cta);
-  background: color-mix(in srgb, var(--cta) 12%, transparent);
+@media (max-width: 640px) {
+  .post-col { padding: 24px; }
+  .post-lista li { font-size: 15px; }
 }
 
-.diag-opt-input:focus-visible + .diag-opt {
-  border-color: var(--cta);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cta) 20%, transparent);
+/* --- 10. Oferta y precio (2026-09-19) --------------------------------- */
+/* Todo prefijado .oferta-*. Las cifras usan el mismo peso 800 y el mismo
+   letter-spacing negativo que los h2 de seccion, para que un numero no grite
+   mas que un titulo. La tercera tarjeta (costos externos) NO lleva cifra: la
+   pauta exige mostrarlos junto al precio, pero ponerles un numero inventaria
+   el consumo del cliente. */
+
+.oferta-bajada {
+  margin: 0 0 40px;
+  max-width: 660px;
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--muted);
 }
 
-.diag-resultado {
-  background: var(--soft);
+.oferta-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin: 0 0 18px;
+}
+
+.oferta-precio {
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 16px;
-  padding: 32px;
-  display: grid;
-  gap: 18px;
-  align-content: start;
+  padding: 28px;
 }
 
-/* Los items calculados van en este wrapper con aria-live; hereda el mismo
-   ritmo de grilla que tenian como hijos directos de .diag-resultado. */
-.diag-live {
-  display: grid;
-  gap: 18px;
+.oferta-aparte {
+  background: var(--bg);
+  border-style: dashed;
 }
 
-/* El nivel "alta" se marca con borde y fondo tenue en acento, no con el
-   texto: --accent como color de texto en la pildora (11.5px) queda en
-   ~4.4:1 sobre --soft, apenas por debajo de AA. El texto va en --text. */
-.diag-nivel.is-alta {
-  color: var(--text);
-  border-color: var(--accent);
-  background: color-mix(in srgb, var(--accent) 12%, transparent);
-}
-
-.diag-cifra { display: grid; }
-
-.diag-cifra-rot {
-  display: block;
-  font-size: 12.5px;
+.oferta-rot {
+  margin: 0 0 14px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   color: var(--muted);
-  margin-bottom: 2px;
 }
 
-.diag-hoy {
-  margin: 0;
-  font-size: 48px;
-  font-weight: 900;
-  letter-spacing: -0.02em;
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-}
-
-.diag-sub {
-  display: block;
-  font-size: 13.5px;
-  color: var(--muted);
-  margin-top: 4px;
-}
-
-.diag-recup {
-  margin: 0;
-  font-size: 34px;
+.oferta-cifra {
+  margin: 0 0 12px;
+  font-size: clamp(30px, 3.2vw, 38px);
   font-weight: 800;
   letter-spacing: -0.02em;
-  line-height: 1;
-  color: var(--accent);
-  font-variant-numeric: tabular-nums;
+  line-height: 1.05;
 }
 
-.diag-anual {
-  margin: 6px 0 0;
-  font-size: 13px;
+.oferta-unidad {
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0;
   color: var(--muted);
 }
 
-.diag-frase {
-  margin: 0;
-  font-size: 15.5px;
-  line-height: 1.6;
-  text-wrap: pretty;
+/* Sin cifra: ocupa el lugar del numero sin fingir que hay uno. */
+.oferta-cifra-chica {
+  margin: 0 0 12px;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  color: var(--accent);
 }
 
-.diag-nota {
+.oferta-detalle {
   margin: 0;
-  padding-left: 14px;
-  border-left: 2px solid var(--accent);
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.55;
   color: var(--muted);
 }
 
-.diag-cta {
-  justify-self: start;
-  padding: 13px 26px;
-  font-size: 16px;
+.oferta-incluye {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
 }
 
-.diag-microcopy {
-  margin: -8px 0 0;
-  font-size: 12.5px;
-  line-height: 1.5;
-  color: var(--muted);
-}
-
-.diag-eco,
-.diag-metodo {
-  border-top: 1px solid var(--border);
-}
-
-.diag-metodo {
-  border-bottom: 1px solid var(--border);
-  margin-top: 40px;
-  max-width: 840px;
-}
-
-.diag-eco summary,
-.diag-metodo summary {
-  list-style: none;
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  font-weight: 700;
-  padding: 18px 0;
-}
-
-.diag-eco summary::-webkit-details-marker,
-.diag-metodo summary::-webkit-details-marker { display: none; }
-
-.diag-eco summary::after,
-.diag-metodo summary::after {
-  content: "+";
-  font-size: 20px;
-  font-weight: 400;
-  color: var(--muted);
-  line-height: 1;
-}
-
-.diag-eco[open] summary::after,
-.diag-metodo[open] summary::after { content: "\2212"; }
-
-.diag-eco summary:focus-visible,
-.diag-metodo summary:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cta) 20%, transparent);
-  border-radius: 8px;
-}
-
-.diag-num {
-  background: var(--bg);
+.oferta-incluye > div {
+  background: var(--surface);
   border: 1px solid var(--border);
-  color: var(--text);
-  border-radius: 10px;
-  padding: 11px 14px;
-  width: 160px;
-  max-width: 100%;
-  box-sizing: border-box;
-  font-family: inherit;
-  font-size: 15px;
-  appearance: textfield;
-  -moz-appearance: textfield;
+  border-radius: 16px;
+  padding: 26px 28px;
 }
 
-.diag-num::-webkit-outer-spin-button,
-.diag-num::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.oferta-col-titulo {
+  margin: 0 0 16px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
 
-.diag-eco-out {
+.oferta-lista {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
   font-size: 15px;
   line-height: 1.5;
-  margin: 4px 0 0;
-}
-
-.diag-eco-val {
-  font-size: 20px;
-  font-weight: 800;
-  color: var(--accent);
-  font-variant-numeric: tabular-nums;
-}
-
-.diag-eco-aviso {
-  font-size: 13px;
   color: var(--muted);
-  margin: 4px 0 0;
 }
 
-.diag-eco-nota {
-  font-size: 12.5px;
-  line-height: 1.5;
-  color: var(--muted);
-  margin: 12px 0 4px;
+.oferta-lista li {
+  padding-left: 18px;
+  position: relative;
 }
 
-.diag-metodo-body {
-  font-size: 15px;
+.oferta-lista li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 9px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.oferta-pie {
+  margin: 18px 0 0;
+  max-width: 820px;
+  font-size: 14px;
   line-height: 1.65;
   color: var(--muted);
-  padding-bottom: 24px;
 }
 
-.diag-metodo-body h4 {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text);
-  margin: 18px 0 6px;
-}
-
-.diag-metodo-body p { margin: 0 0 4px; }
-.diag-metodo-body ul { padding-left: 20px; margin: 0; }
-
-@keyframes diag-flash {
-  from { opacity: 0.45; transform: translateY(3px); }
-  to { opacity: 1; transform: none; }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .diag-flash { animation: diag-flash 0.22s cubic-bezier(0.16, 1, 0.3, 1) both; }
-}
-
-@media (max-width: 920px) {
-  .diag-grid { gap: 24px; }
-  .diag-resultado { padding: 26px; }
-  .diag-hoy { font-size: 42px; }
-  .diag-recup { font-size: 30px; }
+@media (max-width: 900px) {
+  .oferta-grid,
+  .oferta-incluye { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 640px) {
-  .diag-panel { padding: 22px; }
-  .diag-resultado { padding: 22px; }
-  .diag-hoy { font-size: 38px; }
-  .diag-recup { font-size: 27px; }
-  .diag-opt { flex: 1 1 100%; padding: 13px 12px; } /* >=44px tactiles */
-  .diag-cta { justify-self: stretch; text-align: center; }
-  .diag-num { width: 100%; }
+  .oferta-precio { padding: 24px; }
+  .oferta-incluye > div { padding: 22px 24px; }
 }
