@@ -664,25 +664,67 @@ document.addEventListener("DOMContentLoaded", () => {
       if (typing) typing.remove();
     }
 
-    function openChat() {
+    // Disparadores del panel. Hasta el 2026-09-20 era uno solo -el FAB- y el
+    // listener colgaba directo de `chatFab`. Ahora el FAB es un disparador mas:
+    // el enganche va por `[data-chat-open]`, asi sumar un boton en el cuerpo de
+    // la pagina es tocar solo el HTML. `openChat` vive dentro de este bloque
+    // (cierra sobre `chatSessionId` y compania), de modo que un boton nuevo sin
+    // ese atributo no hace nada: el atributo ES el contrato.
+    const chatTriggers = document.querySelectorAll("[data-chat-open]");
+    // Quien abrio el panel. Al cerrar, el foco vuelve ahi y no al FAB de la
+    // esquina: si el visitante abrio desde la FAQ, devolverle el foco al FAB lo
+    // dejaria perdido al fondo de la pagina.
+    let chatOpener = chatFab;
+
+    function setChatExpanded(valor) {
+      // El estado va en TODOS los disparadores, no solo en el que se toco: los
+      // tres controlan el mismo dialogo. Ademas `.chat-fab[aria-expanded=true]`
+      // es la regla de CSS que esconde el FAB mientras el panel esta abierto
+      // (style.css), asi que dejarlo afuera lo dejaria visible arriba del panel.
+      chatTriggers.forEach((t) => t.setAttribute("aria-expanded", valor ? "true" : "false"));
+    }
+
+    function chatOrigenDe(trigger) {
+      if (!trigger) return "fab";
+      if (trigger.dataset && trigger.dataset.chatOrigen) return trigger.dataset.chatOrigen;
+      const bloque = trigger.closest("section[id], header[id], footer[id]");
+      return bloque ? bloque.id : "fab";
+    }
+
+    function openChat(trigger) {
+      const yaAbierto = !chatPanel.hidden;
+      chatOpener = trigger || chatFab;
       chatPanel.hidden = false;
-      chatFab.setAttribute("aria-expanded", "true");
+      setChatExpanded(true);
       if (chatMessages.childElementCount === 0) {
         addBubble("Hola. Contanos qué proceso te está consumiendo más tiempo y vemos cómo ayudarte. Si preferís hablar con una persona, escribinos por WhatsApp.", "bot");
       }
       if (!chatSessionId && !chatTurnstileVerified) {
         turnstileChat.asegurarRenderizado();
       }
+      // GA4: abrir no es lo mismo que escribir. `chat_start` solo se dispara con
+      // el primer mensaje enviado, asi que un panel abierto y abandonado hoy es
+      // invisible -y es justo la senal que hace falta para saber si estos
+      // botones nuevos sirven. `chat_origen` dice de donde salio el clic.
+      // NO marcarlo como evento clave en GA4: ya sobran eventos clave inflando
+      // las tasas de conversion de la interfaz.
+      if (!yaAbierto) {
+        trackEvent("chat_open", { chat_origen: chatOrigenDe(chatOpener) });
+      }
       chatInput.focus();
     }
 
     function closeChat() {
       chatPanel.hidden = true;
-      chatFab.setAttribute("aria-expanded", "false");
-      chatFab.focus();
+      // Primero el estado, despues el foco: mientras `aria-expanded` sea "true"
+      // el FAB esta en `display:none` y no se le puede dar foco.
+      setChatExpanded(false);
+      (chatOpener || chatFab).focus();
     }
 
-    chatFab.addEventListener("click", openChat);
+    chatTriggers.forEach((trigger) => {
+      trigger.addEventListener("click", () => openChat(trigger));
+    });
     chatClose.addEventListener("click", closeChat);
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && !chatPanel.hidden) closeChat();
@@ -730,7 +772,15 @@ document.addEventListener("DOMContentLoaded", () => {
       // verdad, no una intención. Los siguientes no agregan información.
       if (!chatStartTracked) {
         chatStartTracked = true;
-        trackEvent("chat_start", { chat_source: "site_widget" });
+        // `chat_source` NO se toca: hasta el 2026-09-20 habia un solo modo de
+        // abrir el chat y todo lo registrado en GA4 dice "site_widget". Si se
+        // le cambiara el valor ahora, ningun informe podria sumar lo de antes
+        // con lo de despues sin que alguien se acuerde del corte. El origen va
+        // en un parametro NUEVO, `chat_origen`, el mismo que manda `chat_open`:
+        // asi el embudo abrir -> escribir se cruza por origen (cuantos de los
+        // que abrieron desde la FAQ llegaron a mandar un mensaje) y de paso el
+        // valor viejo sigue significando lo que siempre significo.
+        trackEvent("chat_start", { chat_source: "site_widget", chat_origen: chatOrigenDe(chatOpener) });
         trackPixel("Contact", { content_name: "chat_widget" });
       }
 

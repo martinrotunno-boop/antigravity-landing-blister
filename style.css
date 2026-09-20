@@ -1950,3 +1950,111 @@ body::after {
   .oferta-precio { padding: 24px; }
   .oferta-incluye > div { padding: 22px 24px; }
 }
+
+
+/* ============================================================
+   CTA DEL ASISTENTE EN EL CUERPO (2026-09-20)
+   ============================================================
+   El chat ya tenia su FAB flotante y nadie lo veia: se podia recorrer la
+   landing entera sin registrar que habia algo con que hablar. Estos son los
+   disparadores dentro del contenido, con peso de CTA. Ver `[data-chat-open]`
+   en script.js.
+
+   Por que borde y no relleno: el CTA solido en --cta ya es el de WhatsApp. Si
+   el del asistente tambien fuera solido, los dos pelearian el mismo lugar en
+   la jerarquia y el visitante no leeria que son dos caminos distintos. El
+   contorno en el color de marca da peso sin competir. */
+.btn-chat {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 14px 26px;
+  border-radius: 999px;
+  border: 1.5px solid var(--cta);
+  background: transparent;
+  color: var(--cta);
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-chat:hover {
+  background: var(--cta);
+  color: var(--on-cta);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--cta) 40%, transparent);
+}
+
+.btn-chat:focus-visible {
+  outline: 2px solid var(--cta);
+  outline-offset: 3px;
+}
+
+.btn-chat-icon {
+  flex: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-chat:hover { transform: none; }
+}
+
+/* Cierre de la FAQ. El borde de arriba continua el de la ultima fila del
+   acordeon, asi el bloque se lee como el ultimo renglon de la lista y no como
+   una seccion nueva. */
+.chat-cta-inline {
+  max-width: 840px;
+  margin-top: 28px;
+  padding-top: 28px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.chat-cta-text {
+  margin: 0;
+  max-width: 430px;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+/* Dentro de la tarjeta de #contacto. La tarjeta es oscura en los DOS temas
+   (color inline #F4F3F0) pero no redefine --text ni --muted, asi que en tema
+   claro el boton heredaria tinta oscura sobre fondo oscuro. Se repinta aca. */
+.chat-cta-card {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid color-mix(in srgb, #F4F3F0 12%, transparent);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.chat-cta-card .chat-cta-text {
+  max-width: none;
+  font-size: 15.5px;
+  color: #F4F3F0;
+  opacity: .75;
+}
+
+.cta-card .btn-chat:hover {
+  color: #141416;
+}
+
+@media (max-width: 640px) {
+  .chat-cta-inline {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .btn-chat {
+    width: 100%;
+    justify-content: center;
+  }
+}

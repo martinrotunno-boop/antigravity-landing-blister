@@ -533,6 +533,24 @@
       </div>
 
     </div>
+
+    <!-- ENTRADA AL ASISTENTE (2026-09-20) -->
+    <!-- Va pegado a la FAQ porque es donde el asistente le gana a WhatsApp: el
+         visitante tiene una pregunta sin responder y acá el chat es la opción
+         de menor compromiso (sin dejar teléfono ni nombre, contesta al momento).
+         No se duplica al lado de un CTA de WhatsApp que sirve la misma
+         intención: ahí solo partiría el clic en dos. El botón dispara
+         `openChat()` vía `data-chat-open` (script.js, sección CHAT) -no toca el
+         hash ni navega-, y el FAB flotante sigue existiendo como antes. -->
+    <div class="chat-cta-inline scroll-anim fade-up">
+      <p class="chat-cta-text">¿Tu pregunta no está acá? Preguntále al asistente: contesta al momento y no hace falta que dejes tus datos.</p>
+      <button type="button" class="btn-chat" data-chat-open data-chat-origen="faq" aria-haspopup="dialog" aria-expanded="false" aria-controls="chat-panel">
+        <svg class="btn-chat-icon" viewBox="0 0 24 24" width="19" height="19" aria-hidden="true" focusable="false">
+          <path d="M12 3.5c-5.25 0-9.5 3.53-9.5 7.88 0 2.46 1.36 4.66 3.5 6.1-.12.98-.5 2.13-1.28 3.27a.5.5 0 0 0 .57.77c2.02-.6 3.5-1.5 4.4-2.16.73.14 1.5.22 2.31.22 5.25 0 9.5-3.53 9.5-7.88S17.25 3.5 12 3.5Z" fill="currentColor"/>
+        </svg>
+        Preguntále al asistente
+      </button>
+    </div>
   </div>
 </section>
 
@@ -549,6 +567,19 @@
           <span style="opacity:.75">→ contacto@blister.cloud</span>
           <span style="opacity:.75">→ WhatsApp: +598 99 508 432</span>
           <span style="opacity:.75">→ Llamada exploratoria de 20 minutos</span>
+        </div>
+
+        <!-- Tercera puerta, la más barata de cruzar: ni formulario ni WhatsApp.
+             `.btn-chat` se repinta dentro de `.cta-card` (style.css): la tarjeta
+             es oscura en los dos temas y el botón hereda `--text` de la página. -->
+        <div class="chat-cta-card">
+          <p class="chat-cta-text">¿Preferís no dejar datos todavía? Contále al asistente qué necesitás y te responde acá mismo.</p>
+          <button type="button" class="btn-chat" data-chat-open data-chat-origen="contacto" aria-haspopup="dialog" aria-expanded="false" aria-controls="chat-panel">
+            <svg class="btn-chat-icon" viewBox="0 0 24 24" width="19" height="19" aria-hidden="true" focusable="false">
+              <path d="M12 3.5c-5.25 0-9.5 3.53-9.5 7.88 0 2.46 1.36 4.66 3.5 6.1-.12.98-.5 2.13-1.28 3.27a.5.5 0 0 0 .57.77c2.02-.6 3.5-1.5 4.4-2.16.73.14 1.5.22 2.31.22 5.25 0 9.5-3.53 9.5-7.88S17.25 3.5 12 3.5Z" fill="currentColor"/>
+            </svg>
+            Abrir el asistente
+          </button>
         </div>
       </div>
       
@@ -643,7 +674,7 @@
      el chat necesita el suyo propio (ver script.js, seccion CHAT). El panel
      arranca oculto (`hidden`) y sin Turnstile renderizado: se renderiza recien
      al abrir el panel para que el token no llegue vencido al primer mensaje. -->
-<button id="chat-fab" class="chat-fab" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="chat-panel" aria-label="Abrir el asistente de Blister">
+<button id="chat-fab" class="chat-fab" type="button" data-chat-open data-chat-origen="fab" aria-haspopup="dialog" aria-expanded="false" aria-controls="chat-panel" aria-label="Abrir el asistente de Blister">
   <svg class="chat-fab-icon" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" focusable="false">
     <path d="M12 3.5c-5.25 0-9.5 3.53-9.5 7.88 0 2.46 1.36 4.66 3.5 6.1-.12.98-.5 2.13-1.28 3.27a.5.5 0 0 0 .57.77c2.02-.6 3.5-1.5 4.4-2.16.73.14 1.5.22 2.31.22 5.25 0 9.5-3.53 9.5-7.88S17.25 3.5 12 3.5Z" fill="currentColor"/>
     <circle cx="8.1" cy="11.4" r="1.15" fill="var(--cta)"/>
