@@ -405,13 +405,159 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
+  // El action "contacto" no se toca: L01 lo exige en la respuesta de Turnstile.
+  // Ya no se renderiza al cargar la página: el widget vive en el paso 3 del
+  // quiz y se renderiza recién al llegar ahí (ver QUIZ más abajo).
   const turnstileContacto = crearControladorTurnstile(cfTurnstileContainer, "contacto");
-  if (cfTurnstileContainer && window.ENV && window.ENV.TURNSTILE_SITEKEY) {
-    turnstileContacto.asegurarRenderizado();
-  }
   // Alias para no tocar el resto del handler de envío del formulario, que ya
   // usaba `turnstileWidgetId !== null` como señal de "hay Turnstile activo".
   const turnstileWidgetId = cfTurnstileContainer ? "activo" : null;
+
+  // --- QUIZ DE CONTACTO (2026-09-22) ---
+  // Reemplaza al formulario de 5 campos, que no convertía. Dos preguntas de
+  // opción múltiple (un clic cada una) y recién después un único dato: correo o
+  // WhatsApp. La segunda pregunta depende de la primera: es de exploración, le
+  // da a la llamada algo concreto de dónde arrancar.
+  //
+  // El contrato con L01 no cambia: las respuestas viajan armadas como `message`
+  // y el contacto se parte en `email` o `phone`. Nombre y empresa van vacíos
+  // (L01 los acepta así desde esta fecha).
+  const QUIZ_PRIMERA = {
+    titulo: "¿Qué te está sacando más tiempo hoy?",
+    etiqueta: "Lo que más tiempo saca",
+    opciones: [
+      { id: "consultas", texto: "Responder consultas y hacer seguimiento" },
+      { id: "carga", texto: "Cargar datos, facturas o planillas a mano" },
+      { id: "agenda", texto: "Pasar contactos al CRM y agendar reuniones" },
+      { id: "avisos", texto: "Mandar avisos y recordatorios a clientes" },
+      { id: "equipo", texto: "Que el equipo me pregunte todo a mí" },
+      { id: "otra", texto: "Otra cosa" }
+    ]
+  };
+
+  const QUIZ_SEGUNDA = {
+    consultas: {
+      titulo: "¿Por dónde te llegan la mayoría?",
+      etiqueta: "Canal principal",
+      opciones: ["WhatsApp", "Correo", "Instagram o Facebook", "El formulario de la web", "Por varios lados"]
+    },
+    carga: {
+      titulo: "¿Qué es lo que más se carga a mano?",
+      etiqueta: "Qué se carga a mano",
+      opciones: ["Facturas y comprobantes", "Pedidos", "Datos de clientes", "Reportes y planillas"]
+    },
+    agenda: {
+      titulo: "¿Dónde tenés hoy tus contactos?",
+      etiqueta: "Dónde están los contactos",
+      opciones: ["En una planilla", "En un CRM", "Sueltos en WhatsApp o el correo", "En ningún lado fijo"]
+    },
+    avisos: {
+      titulo: "¿Cuántos clientes activos manejás?",
+      etiqueta: "Clientes activos",
+      opciones: ["Menos de 20", "Entre 20 y 100", "Más de 100"]
+    },
+    equipo: {
+      titulo: "¿Cuántas personas hay en el equipo?",
+      etiqueta: "Tamaño del equipo",
+      opciones: ["De 2 a 5", "De 6 a 20", "Más de 20"]
+    },
+    otra: {
+      titulo: "¿Cuánto tiempo por semana se va en eso?",
+      etiqueta: "Tiempo por semana",
+      opciones: ["Menos de 5 horas", "Entre 5 y 15 horas", "Más de 15 horas", "No lo tengo medido"]
+    }
+  };
+
+  const quiz = document.getElementById("quiz");
+  const quizStepQ = document.getElementById("quiz-step-q");
+  const quizTitle = document.getElementById("quiz-title");
+  const quizOptions = document.getElementById("quiz-options");
+  const quizBack = document.getElementById("quiz-back");
+  const quizProgress = document.getElementById("quiz-progress");
+  const quizBarFill = document.getElementById("quiz-bar-fill");
+  const quizContactTitle = document.getElementById("quiz-contact-title");
+
+  const quizEstado = { paso: 1, primera: null, segunda: null };
+
+  // Reinicia la animación de entrada del paso que se muestra.
+  const animarPaso = (el) => {
+    el.classList.remove("quiz-anim");
+    void el.offsetWidth;
+    el.classList.add("quiz-anim");
+  };
+
+  // `enfocar` es false solo en el primer pintado: mover el foco al cargar la
+  // página haría saltar el scroll hasta #contacto.
+  function pintarQuiz(enfocar) {
+    if (!quiz) return;
+    const paso = quizEstado.paso;
+    quizProgress.textContent = `Paso ${paso} de 3`;
+    quizBarFill.style.width = `${Math.round((paso / 3) * 100)}%`;
+    quizBack.hidden = paso === 1;
+
+    if (paso === 3) {
+      quizStepQ.hidden = true;
+      contactForm.hidden = false;
+      animarPaso(contactForm);
+      if (cfTurnstileContainer && window.ENV && window.ENV.TURNSTILE_SITEKEY) {
+        turnstileContacto.asegurarRenderizado();
+      }
+      if (enfocar) quizContactTitle.focus();
+      return;
+    }
+
+    const pregunta = paso === 1 ? QUIZ_PRIMERA : QUIZ_SEGUNDA[quizEstado.primera.id];
+    const elegida = paso === 1 ? (quizEstado.primera && quizEstado.primera.texto) : quizEstado.segunda;
+
+    contactForm.hidden = true;
+    quizStepQ.hidden = false;
+    quizTitle.textContent = pregunta.titulo;
+    quizOptions.replaceChildren();
+    pregunta.opciones.forEach((opcion) => {
+      const texto = typeof opcion === "string" ? opcion : opcion.texto;
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "quiz-option";
+      btn.textContent = texto;
+      btn.setAttribute("aria-pressed", texto === elegida ? "true" : "false");
+      btn.addEventListener("click", () => elegirOpcion(opcion));
+      quizOptions.appendChild(btn);
+    });
+    animarPaso(quizStepQ);
+    if (enfocar) quizTitle.focus();
+  }
+
+  function elegirOpcion(opcion) {
+    if (quizEstado.paso === 1) {
+      // Cambiar la primera respuesta invalida la segunda: era de otra rama.
+      if (!quizEstado.primera || quizEstado.primera.id !== opcion.id) quizEstado.segunda = null;
+      quizEstado.primera = opcion;
+      trackEvent("quiz_step", { step: 1, answer: opcion.id });
+    } else {
+      quizEstado.segunda = opcion;
+      trackEvent("quiz_step", { step: 2, answer: opcion });
+    }
+    quizEstado.paso += 1;
+    formError.style.display = "none";
+    pintarQuiz(true);
+  }
+
+  if (quizBack) {
+    quizBack.addEventListener("click", () => {
+      if (quizEstado.paso > 1) quizEstado.paso -= 1;
+      formError.style.display = "none";
+      pintarQuiz(true);
+    });
+  }
+
+  // Lo que llega a L01 como `message`, y lo que se lee en la planilla, en el
+  // Telegram y en el correo de confirmación que recibe el lead.
+  function armarMensajeQuiz() {
+    const segunda = QUIZ_SEGUNDA[quizEstado.primera.id];
+    return `${QUIZ_PRIMERA.etiqueta}: ${quizEstado.primera.texto}. ${segunda.etiqueta}: ${quizEstado.segunda}.`;
+  }
+
+  if (contactForm) pintarQuiz(false);
 
   if (contactForm) {
     contactForm.addEventListener("submit", async (e) => {
@@ -425,27 +571,39 @@ document.addEventListener("DOMContentLoaded", () => {
       // Payload explícito: no dejamos que campos extra del form (ni el input
       // oculto de Turnstile) se filtren al body por accidente. El honeypot es
       // la excepción: se envía a propósito para que n8n lo valide server-side.
+      //
+      // Un solo campo de contacto: si tiene "@" es correo, si no, WhatsApp.
+      // Se valida con las mismas reglas que L01 ("Campos Válidos?") para que
+      // nadie llegue a un 400 del servidor por algo que se ve acá.
+      const contacto = (formData.get("contact") || "").toString().trim();
+      const esEmail = contacto.includes("@");
+
+      if (!quizEstado.primera || !quizEstado.segunda) {
+        quizEstado.paso = 1;
+        pintarQuiz(true);
+        return;
+      }
+      if (!contacto) {
+        showError("Dejanos tu correo o tu WhatsApp para poder escribirte.");
+        return;
+      }
+      if (esEmail && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(contacto)) {
+        showError("Revisá el correo: parece que le falta algo.");
+        return;
+      }
+      if (!esEmail && contacto.replace(/\D/g, "").length < 6) {
+        showError("Revisá el número: dejalo con código de área, o escribí tu correo.");
+        return;
+      }
+
       const data = {
-        name: (formData.get("name") || "").toString().trim(),
-        email: (formData.get("email") || "").toString().trim(),
-        phone: (formData.get("phone") || "").toString().trim(),
-        company: (formData.get("company") || "").toString().trim(),
-        message: (formData.get("message") || "").toString().trim(),
+        name: "",
+        email: esEmail ? contacto.toLowerCase() : "",
+        phone: esEmail ? "" : contacto,
+        company: "",
+        message: armarMensajeQuiz(),
         website: (formData.get("website") || "").toString().trim()
       };
-
-      // Validación adicional (HTML5 ya cubre los required y el formato de email).
-      if (!data.name || !data.message) {
-        showError("Por favor completá los campos requeridos.");
-        return;
-      }
-
-      // Contacto: alcanza con email O teléfono. Se rechaza solo si faltan los
-      // dos. Mismo criterio que L01 en n8n (nodo "Campos Válidos?").
-      if (!data.email && !data.phone) {
-        showError("Dejanos al menos un contacto: correo o WhatsApp.");
-        return;
-      }
 
       // Token de Turnstile: obligatorio solo si el widget está configurado.
       if (turnstileWidgetId !== null) {
@@ -518,13 +676,15 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         // Éxito
-        contactForm.style.display = "none";
+        quiz.style.display = "none";
+        formError.style.display = "none";
         formSuccess.style.display = "block";
 
         // GA4: lead confirmado. Va después de `response.ok`, así cuenta leads
         // que entraron al CRM y no intentos que murieron en Turnstile o en red.
-        trackEvent("generate_lead", { lead_source: "contact_form" });
-        trackPixel("Lead", { content_name: "contact_form" });
+        // `quiz_step` (pasos 1 y 2) + este evento arman el embudo del quiz.
+        trackEvent("generate_lead", { lead_source: "quiz", quiz_answer: quizEstado.primera.id });
+        trackPixel("Lead", { content_name: "quiz" });
         
       } catch (error) {
         // Acá cae solo lo que ni siquiera llegó a tener respuesta: sin red, DNS

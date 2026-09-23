@@ -583,6 +583,9 @@
         </div>
       </div>
       
+      <!-- Columna derecha: éxito, error y quiz comparten una sola celda del grid.
+           Sueltos, el aviso de error ocupaba la celda y empujaba el quiz abajo. -->
+      <div class="quiz-col">
       <!-- Mensaje de Éxito (Oculto) -->
       <div id="form-success" style="display:none;border:1px solid color-mix(in srgb, var(--bg) 25%, transparent);border-radius:14px;padding:40px;text-align:center">
         <p style="margin:0 0 8px;font-size:24px;font-weight:800">Listo<span style="color:var(--cta)">.</span></p>
@@ -595,39 +598,57 @@
         <p id="form-error-msg" style="margin:0;font-size:14.5px;opacity:.85">No pudimos procesar tu solicitud. Por favor intenta más tarde.</p>
       </div>
 
-      <!-- Formulario -->
-      <form id="contact-form" style="display:flex;flex-direction:column;gap:14px">
-        <input type="text" id="fName" name="name" placeholder="Nombre completo" aria-label="Nombre completo" autocomplete="name" required class="form-input">
-        <input type="email" id="fEmail" name="email" placeholder="Correo electrónico (o dejá tu WhatsApp)" aria-label="Correo electrónico — opcional si dejás tu WhatsApp" autocomplete="email" class="form-input">
-        <input type="text" id="fPhone" name="phone" placeholder="WhatsApp / Teléfono (o dejá tu correo)" aria-label="WhatsApp o teléfono — opcional si dejás tu correo" autocomplete="tel" class="form-input">
-        <input type="text" id="fCompany" name="company" placeholder="Nombre de tu empresa" aria-label="Nombre de tu empresa" autocomplete="organization" required class="form-input">
-        <textarea id="fMessage" name="message" placeholder="¿Qué tarea te está robando más tiempo?" aria-label="¿Qué tarea te está robando más tiempo?" autocomplete="off" rows="3" style="resize:vertical" required class="form-input"></textarea>
+      <!-- Quiz de 3 pasos (2026-09-22). Reemplaza al formulario de 5 campos:
+           el formulario largo no convertía. Pasos 1 y 2 son botones (un clic
+           cada uno, sin teclear); recién el 3 pide un solo dato: correo o
+           WhatsApp. Las preguntas viven en QUIZ_PREGUNTAS (script.js). El envío
+           sigue yendo a L01 con el mismo contrato: las respuestas se arman como
+           `message` y el contacto se parte en `email` o `phone`. -->
+      <div id="quiz" class="quiz" aria-live="polite">
+        <div class="quiz-top">
+          <button type="button" id="quiz-back" class="quiz-back" hidden>← Volver</button>
+          <span id="quiz-progress" class="quiz-progress">Paso 1 de 3</span>
+        </div>
+        <div class="quiz-bar" aria-hidden="true"><span id="quiz-bar-fill"></span></div>
 
-        <!-- Honeypot anti-spam: campo señuelo invisible para una persona pero
-             visible en el DOM para un bot que autocompleta cualquier input.
-             Si llega con valor, n8n devuelve éxito falso y descarta el envío
-             sin gastar la llamada a Turnstile. No usar `type="hidden"` ni
-             `display:none`: varios bots los detectan y los saltean a
-             propósito; por eso queda fuera de pantalla con position:absolute. -->
-        <div style="position:absolute;left:-9999px;top:-9999px;" aria-hidden="true">
-          <label for="fWebsite">Sitio web</label>
-          <input type="text" id="fWebsite" name="website" tabindex="-1" autocomplete="off">
+        <!-- Pasos 1 y 2: script.js pinta la pregunta y las opciones. -->
+        <div id="quiz-step-q">
+          <p id="quiz-title" class="quiz-title" tabindex="-1"></p>
+          <div id="quiz-options" class="quiz-options" role="group" aria-labelledby="quiz-title"></div>
         </div>
 
-        <!-- Cloudflare Turnstile — se renderiza explícitamente desde script.js.
-             El widget es un iframe de ancho FIJO (300px). Sin el wrapper, ese
-             ancho pasaba a ser el mínimo intrínseco de la columna del grid y
-             arrastraba todo el formulario fuera de la tarjeta en teléfono.
-             script.js lo escala dentro del wrapper cuando no hay 300px. -->
-        <div class="turnstile-wrap" style="margin-top: 8px;">
-          <div id="cf-turnstile"></div>
-        </div>
-        
-        <button type="submit" id="form-submit" class="btn-primary" style="padding:15px 28px;font-size:16px;margin-top:8px;border:none;width:100%;text-align:center;">
-          <span id="btn-text">Solicitar evaluación inicial</span>
-          <span id="btn-loader" style="display:none;">⏳ Enviando...</span>
-        </button>
-      </form>
+        <!-- Paso 3: el único dato que se pide. -->
+        <form id="contact-form" class="quiz-contact" hidden novalidate>
+          <p id="quiz-contact-title" class="quiz-title" tabindex="-1">Listo. ¿Dónde te escribimos?</p>
+          <p class="quiz-sub">Dejanos tu correo o tu WhatsApp y te contactamos para ver tu caso. Sin compromiso.</p>
+          <input type="text" id="fContact" name="contact" placeholder="Tu correo o WhatsApp" aria-label="Tu correo o WhatsApp" autocomplete="email" inputmode="email" class="form-input">
+
+          <!-- Honeypot anti-spam: campo señuelo invisible para una persona pero
+               visible en el DOM para un bot que autocompleta cualquier input.
+               Si llega con valor, n8n devuelve éxito falso y descarta el envío
+               sin gastar la llamada a Turnstile. No usar `type="hidden"` ni
+               `display:none`: varios bots los detectan y los saltean a
+               propósito; por eso queda fuera de pantalla con position:absolute. -->
+          <div style="position:absolute;left:-9999px;top:-9999px;" aria-hidden="true">
+            <label for="fWebsite">Sitio web</label>
+            <input type="text" id="fWebsite" name="website" tabindex="-1" autocomplete="off">
+          </div>
+
+          <!-- Cloudflare Turnstile. Se renderiza recién al llegar a este paso
+               (script.js): en un panel oculto no se puede medir para escalarlo,
+               y el token vencería mientras la persona contesta los pasos 1 y 2.
+               El wrapper absorbe el ancho fijo de 300px del iframe en teléfono. -->
+          <div class="turnstile-wrap">
+            <div id="cf-turnstile"></div>
+          </div>
+
+          <button type="submit" id="form-submit" class="btn-primary" style="padding:15px 28px;font-size:16px;border:none;width:100%;text-align:center;">
+            <span id="btn-text">Enviar</span>
+            <span id="btn-loader" style="display:none;">⏳ Enviando...</span>
+          </button>
+        </form>
+      </div>
+      </div>
 
     </div>
   </div>
