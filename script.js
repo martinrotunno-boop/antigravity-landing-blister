@@ -223,33 +223,43 @@ document.addEventListener("DOMContentLoaded", () => {
     'Seguimiento enviado a consultas sin respuesta'
   ];
   
+  // Las filas se pintan UNA vez y en cada tick solo se mueve la clase
+  // .is-active. Antes se reescribia el innerHTML entero cada 1.9 s: los nodos
+  // eran nuevos en cada vuelta y las transiciones nunca llegaban a correr.
+  // El ritmo vive en --task-ms para que la barra de progreso (CSS) dure
+  // exactamente lo mismo que el turno de cada fila.
+  const TASK_MS = 1900;
   let taskIdx = 0;
-  
-  const renderTasks = () => {
-    if (!tasksContainer) return;
 
-    tasksContainer.innerHTML = taskDefs.map((label, i) => {
-      const active = i === taskIdx;
-      const opacity = active ? 1 : 0.92;
-      const dotColor = active ? 'var(--cta)' : 'var(--border)';
-      const stateText = active ? 'Procesando' : 'Resuelto';
-      const stateColor = active ? 'var(--accent)' : 'var(--muted)';
+  if (tasksContainer) {
+    tasksContainer.style.setProperty("--task-ms", `${TASK_MS}ms`);
+    tasksContainer.innerHTML = taskDefs.map(label => `
+      <div class="task-row">
+        <span class="task-dot"></span>
+        <span class="task-label">${label}</span>
+        <span class="task-state">Resuelto</span>
+      </div>
+    `).join("");
 
-      return `
-        <div style="display:flex;align-items:center;gap:14px;padding:15px 20px;border-bottom:1px solid var(--border);opacity:${opacity};transition:opacity .4s">
-          <span style="width:8px;height:8px;border-radius:50%;flex:none;background:${dotColor};transition:background .4s"></span>
-          <span style="flex:1;font-size:14.5px;font-weight:500;color:var(--text)">${label}</span>
-          <span style="font-family:var(--mono);font-size:12.5px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:${stateColor}">${stateText}</span>
-        </div>
-      `;
-    }).join("");
-  };
+    const rows = [...tasksContainer.children];
+    const activate = (i) => {
+      const row = rows[i];
+      row.classList.add("is-active");
+      row.querySelector(".task-state").textContent = "Procesando";
+    };
+    const resolve = (i) => {
+      const row = rows[i];
+      row.classList.remove("is-active");
+      row.querySelector(".task-state").textContent = "Resuelto";
+    };
 
-  renderTasks();
-  setInterval(() => {
-    taskIdx = (taskIdx + 1) % taskDefs.length;
-    renderTasks();
-  }, 1900);
+    activate(taskIdx);
+    setInterval(() => {
+      resolve(taskIdx);
+      taskIdx = (taskIdx + 1) % rows.length;
+      activate(taskIdx);
+    }, TASK_MS);
+  }
 
 
   // --- GLOBAL SCROLL ANIMATIONS ---

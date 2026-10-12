@@ -473,10 +473,80 @@ a:hover {
   color: var(--muted);
 }
 
+/* Conector entre pasos (2026-10-01). Era un "→" quieto; ahora es una linea
+   punteada con punta, y un punto naranja la recorre cuando la seccion entra en
+   pantalla. Lo que agrega es justo lo que dice el titulo: el trabajo PASA de
+   una tarjeta a la otra sin que nadie lo empuje.
+   - El glifo del HTML queda (font-size: 0): sin CSS sigue habiendo flecha.
+   - La linea y la punta son estaticas; solo el punto se mueve. Con
+     reduced-motion el punto no existe y el conector se lee igual.
+   - La segunda flecha arranca con medio ciclo de atraso: se lee como UN
+     recorrido 1 → 2 → 3, no como dos flechas latiendo a la vez.
+   - En movil NO se rota: un elemento rotado conserva su caja horizontal y
+     dejaria las tarjetas pegadas. Se redibuja vertical. */
 .flow-arrow {
+  --flow-len: 44px;
+  --flow-ink: color-mix(in srgb, var(--cta) 55%, var(--border));
+  position: relative;
   align-self: center;
-  font-size: 22px;
-  color: color-mix(in srgb, var(--cta) 70%, var(--muted));
+  width: var(--flow-len);
+  height: 1px;
+  font-size: 0;
+  background: repeating-linear-gradient(90deg, var(--flow-ink) 0 4px, transparent 4px 8px);
+}
+
+/* Punta */
+.flow-arrow::before {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: -3px;
+  width: 6px;
+  height: 6px;
+  border-top: 1px solid var(--flow-ink);
+  border-right: 1px solid var(--flow-ink);
+  transform: rotate(45deg);
+}
+
+/* El punto que viaja */
+.flow-arrow::after {
+  content: "";
+  position: absolute;
+  left: -3px;
+  top: -3px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--cta);
+  box-shadow: 0 0 10px 1px color-mix(in srgb, var(--cta) 60%, transparent);
+  opacity: 0;
+}
+
+.scroll-anim.is-visible .flow-arrow::after {
+  animation: b-flow-x 2.8s cubic-bezier(0.45, 0, 0.25, 1) infinite;
+}
+
+.scroll-anim.is-visible .flow-step + .flow-arrow + .flow-step + .flow-arrow::after {
+  animation-delay: 1.4s;
+}
+
+@keyframes b-flow-x {
+  0%        { transform: translateX(0); opacity: 0; }
+  6%        { opacity: 1; }
+  40%       { opacity: 1; }
+  48%, 100% { transform: translateX(var(--flow-len)); opacity: 0; }
+}
+
+@keyframes b-flow-y {
+  0%        { transform: translateY(0); opacity: 0; }
+  6%        { opacity: 1; }
+  40%       { opacity: 1; }
+  48%, 100% { transform: translateY(var(--flow-len)); opacity: 0; }
+}
+
+/* En claro el mismo naranja pega el doble: halo mas chico. */
+:root[data-theme="claro"] .flow-arrow::after {
+  box-shadow: 0 0 6px color-mix(in srgb, var(--cta) 45%, transparent);
 }
 
 @media (max-width: 920px) {
@@ -484,9 +554,139 @@ a:hover {
     grid-template-columns: 1fr;
   }
   .flow-arrow {
+    --flow-len: 32px;
     justify-self: center;
-    transform: rotate(90deg);
+    width: 1px;
+    height: var(--flow-len);
+    background: repeating-linear-gradient(180deg, var(--flow-ink) 0 4px, transparent 4px 8px);
   }
+  .flow-arrow::before {
+    right: auto;
+    top: auto;
+    left: -3px;
+    bottom: 0;
+    transform: rotate(135deg);
+  }
+  .scroll-anim.is-visible .flow-arrow::after {
+    animation-name: b-flow-y;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flow-arrow::after { display: none; }
+}
+
+/* Filas de la tarjeta del hero ("Ejemplo de operacion automatizada").
+   Las pinta script.js una sola vez; cada turno solo mueve .is-active.
+   La fila activa lleva dos senales, cada una con su trabajo: el anillo del
+   punto dice "esta corriendo" y la barra de abajo dice "esta por terminar".
+   Sin numeros de latencia ni horas a proposito: serian datos inventados
+   (mismo criterio que saco la franja de metricas el 2026-08-29). */
+.task-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 15px 20px;
+  border-bottom: 1px solid var(--border);
+  opacity: 0.92;
+  transition: opacity 0.4s ease;
+}
+
+.task-row.is-active { opacity: 1; }
+
+.task-dot {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: none;
+  background: var(--border);
+  transition: background 0.9s ease;
+}
+
+.task-row.is-active .task-dot {
+  background: var(--cta);
+  transition-duration: 0.2s;
+}
+
+.task-row.is-active .task-dot::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 50%;
+  border: 1px solid var(--cta);
+  animation: b-ping 1.3s ease-out infinite;
+}
+
+@keyframes b-ping {
+  0%   { transform: scale(1);   opacity: 0.7; }
+  100% { transform: scale(2.6); opacity: 0; }
+}
+
+.task-label {
+  flex: 1;
+  font-size: 14.5px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+/* Ancho fijo: "Procesando" es mas largo que "Resuelto" y con el label en
+   flex: 1 la fila se correria en cada cambio. */
+.task-state {
+  min-width: 12ch;
+  text-align: right;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  transition: color 0.9s ease;
+}
+
+.task-row.is-active .task-state {
+  color: var(--accent);
+  transition-duration: 0.2s;
+}
+
+/* En movil la reserva de 12ch le robaba ancho al label y lo partia en dos
+   lineas: estado mas chico, misma reserva relativa. */
+@media (max-width: 600px) {
+  .task-state {
+    min-width: 10.5ch;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+  }
+}
+
+/* Barra de progreso sobre el borde inferior: dura un turno exacto
+   (--task-ms lo pone script.js). */
+.task-row.is-active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background: linear-gradient(90deg,
+              color-mix(in srgb, var(--accent) 15%, transparent),
+              var(--accent));
+  transform-origin: left center;
+  animation: b-progress var(--task-ms, 1900ms) linear both;
+}
+
+@keyframes b-progress {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .task-row,
+  .task-dot,
+  .task-state { transition: none; }
+  .task-row.is-active .task-dot::after,
+  .task-row.is-active::after { display: none; }
 }
 
 /* EVIDENCIA — un solo testimonio real (Resonancia Radiante). La cita va sobre
